@@ -1,0 +1,27 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Projects</h1>
+
+<table class="table table-hover">
+    <thead>
+        <tr class="table-primary">
+            <th scope="col">Title</th>
+            <th scope="col">Description</th>
+            <th scope="col">Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var proj in Model)
+        {
+            <tr>
+                <td>@proj.Title</td>
+                <td>@proj.Description</td>
+                <td>@proj.Date</td>
+            </tr>
+        }
+    </tbody>
+</table>
