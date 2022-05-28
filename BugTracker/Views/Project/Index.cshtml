@@ -4,9 +4,21 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Projects</h1>
 
-<table class="table table-hover">
+<div class="container p-3 mb-4">
+    <div class="row pt-3">
+        <div class="col-6">
+            <h2>Projects</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="Project" asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> &nbsp; New Project
+            </a>
+        </div>
+    </div>
+</div>
+
+<table class="display table table-hover" >
     <thead>
         <tr class="table-primary">
             <th scope="col">Title</th>
@@ -25,3 +37,4 @@
         }
     </tbody>
 </table>
+
