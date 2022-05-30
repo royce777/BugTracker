@@ -1,0 +1,58 @@
+﻿@model Ticket 
+@using BugTracker.Areas.Identity.Data
+
+<div class="card border-primary mt-4 mb-3" style="max-width: 200rem;">
+  <div class="card-header">
+      <h3> Create Ticket </h3>
+  </div>
+  <div class="card-body">
+       <form method="post" >
+        <div class="form-floating mb-3">
+            <input class="form-control" asp-for="Title" aria-required="true"/>
+            <label class="form-label" asp-for="Title"></label>
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="form-floating mb-3">
+            <input class="form-control" aria-required="true" asp-for="Description" />
+            <label class="form-label" asp-for="Description"></label>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+        <div class="form-floating mb-3">
+            @Html.DropDownListFor(t => t.ProjectId, new SelectList((IEnumerable<Project>)ViewData["ProjectsList"],"Id", "Title"), "  " ,new { @class="form-select"})
+            <label class="form-label" asp-for="Project"></label>
+        </div>
+        <div class="form-floating mb-3">
+            @Html.DropDownListFor(t => t.SubmitterId, new SelectList((IEnumerable<ApplicationUser>)ViewData["Users"],"Id", "FirstName"),"  ",new { @class="form-select"})
+            <label class="form-label" asp-for="Submitter"></label>
+        </div>
+        <div class="form-floating mb-3">
+            @Html.DropDownListFor(t => t.DeveloperId,  new SelectList((IEnumerable<ApplicationUser>)ViewData["Users"],"Id", "FirstName"), "  ",new { @class="form-select"})
+            <label class="form-label" asp-for="Developer"></label>
+        </div>
+        <div class="form-floating mb-3">
+            <select class="form-select" asp-for="Priority" asp-items="Html.GetEnumSelectList<TicketPriority>()">
+                <option selected="selected" value="">  </option>
+            </select>
+            <label class="form-floating" asp-for="Priority"></label>
+        </div>
+        <div class="form-floating mb-3">
+            <select class="form-select" asp-for="Status" asp-items="Html.GetEnumSelectList<TicketStatus>()">
+                <option selected="selected" value="">  </option>
+            </select>
+            <label class="form-label" asp-for="Status"></label>
+        </div>
+        <div class="form-floating mb-3">
+            <select class="form-select" asp-for="Type" asp-items="Html.GetEnumSelectList<TicketType>()">
+                <option selected="selected" value="">  </option>
+            </select>
+            <label class="form-label" asp-for="Type"></label>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a asp-controller="Ticket" asp-action="Index" class="btn btn-secondary">Back</a>
+        </form>
+  </div>
+</div>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+}

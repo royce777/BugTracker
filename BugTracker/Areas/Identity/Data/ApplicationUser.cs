@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using BugTracker.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace BugTracker.Areas.Identity.Data;
@@ -16,5 +17,6 @@ public class ApplicationUser : IdentityUser
     [Required]
     [PersonalData]
     public string LastName { get; set; }
+    public ICollection<Project> AssignedProjects{ get; set; }
 }
 

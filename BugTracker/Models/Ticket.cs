@@ -34,9 +34,10 @@ public class Ticket
     [Required]
     public string Description { get; set; }
     [Required]
-    public ApplicationUser Submitter { get; set; }
-    [Required]
-    public ApplicationUser Developer { get; set; }
+    public string SubmitterId { get; set; } 
+    public virtual ApplicationUser? Submitter { get; set; }
+    public string? DeveloperId { get; set; }
+    public virtual ApplicationUser? Developer { get; set; }
     [Required]
     public TicketPriority Priority{ get; set; } 
     [Required]
@@ -44,10 +45,12 @@ public class Ticket
     [Required]
     public TicketType Type { get; set; }
     public DateTime Created { get; set; } = DateTime.Now;
-    [Required]
-    public DateTime LastUpdate { get; set; }
-    
+    public DateTime? LastUpdate { get; set; }
+
     // link to a project
-    public Project Project { get; set; }
+    [Required]
+    public int ProjectId { get; set; }
+    public virtual Project? Project { get; set; }
+    public ICollection<Comment>? Comments { get; set; }
 
 }
