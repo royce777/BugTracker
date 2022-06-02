@@ -6,8 +6,10 @@ namespace BugTracker.Models;
 public enum TicketStatus
 {
     Pending,
+    [Display(Name ="In Progress")]
     In_Progress,
-    Closed
+    Closed,
+    Finished
 }
 
 public enum TicketPriority
@@ -20,6 +22,7 @@ public enum TicketPriority
 
 public enum TicketType
 {
+    [Display(Name ="Bug Fix")]
     BugFix,
     Improve,
     Feature
