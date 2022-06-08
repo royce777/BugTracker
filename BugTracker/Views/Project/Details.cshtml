@@ -12,17 +12,32 @@
   </div>
 </div>
 
+@if(ViewBag.showChart == "Yes")
+{
+    <div class="row">
+        <div class="col-4 ">
+            <canvas id="priorityChart"></canvas>
+        </div>
+        <div class="col-4 ">
+            <canvas id="statusChart"></canvas>
+        </div>
+        <div class="col-4 ">
+            <canvas id="typeChart"></canvas>
+        </div>
+    </div>
+}
+
 <div class="row">
-    <div class="col-lg-6">
+    <div class="col-xl-6">
         <div class="card border-primary m-3" >
-          <div class="card-header">Tickets</div>
+          <div class="card-header"><h4>Tickets</h4></div>
           <div class="card-body">
             <table class="display table table-hover" >
                 <thead>
                     <tr class="table-primary">
                         <th scope="col">Title</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Date</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Priority</th>
                         <th scope="col">Action</th>
                     </tr>
                 </thead>
@@ -32,12 +47,13 @@
                     {
                         <tr>
                             <td>@ticket.Title</td>
-                            <td>@ticket.Description</td>
-                            <td>@ticket.Created</td>
+                            <td>@ticket.Status</td>
+                            <td>@ticket.Priority</td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <a asp-controller="Project" asp-action="Edit" asp-route-id="@ticket.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
-                                    <a asp-controller="Project" asp-action="Delete" asp-route-id="@ticket.Id" class="btn btn-warning"><i class="bi bi-trash-fill"></i></a>
+                                    <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-dark"><i class="bi bi-pencil-square"></i></a>
+                                    <a asp-controller="Ticket" asp-action="Edit" asp-route-id="@ticket.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
+                                    <a asp-controller="Ticket" asp-action="Delete" asp-route-id="@ticket.Id" class="btn btn-warning"><i class="bi bi-trash-fill"></i></a>
                                 </div>
                             </td>
                         </tr>
@@ -48,9 +64,9 @@
         </div>
 
     </div>
-    <div class="col-lg-6">
+    <div class="col-xl-6">
         <div class="card border-primary m-3" >
-          <div class="card-header">Staff</div>
+          <div class="card-header"><h4>Staff</h4></div>
           <div class="card-body">
             <table class="display table table-hover" >
                 <thead>
@@ -68,7 +84,7 @@
                         <tr>
                             <td>@user.FirstName</td>
                             <td>@user.LastName</td>
-                            <td>@user.Username</td>
+                            <td>@user.UserName</td>
                             <td>
                                 <div class="btn-group" role="group">
                                     <a asp-controller="Project" asp-action="Edit" asp-route-id="@user.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
@@ -85,19 +101,20 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-lg-4">
-        <canvas id="myChart"></canvas>
-    </div>
-    <div class="col-lg-4">
-    </div>
-</div>
 
 
 <script>
-  const myChart = new Chart(
-    document.getElementById('myChart'),
+  const priorityChart = new Chart(
+    document.getElementById('priorityChart'),
     @Html.Raw(ViewBag.priorityData)
   );
+const statusChart = new Chart(
+    document.getElementById('statusChart'),
+    @Html.Raw(ViewBag.statusData)
+      );
+const typeChart = new Chart(
+    document.getElementById('typeChart'),
+    @Html.Raw(ViewBag.typeData)
+    );
 </script>
  

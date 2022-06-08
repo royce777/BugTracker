@@ -1,11 +1,13 @@
 ﻿using BugTracker.Data;
 using BugTracker.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.Controllers
 {
+    [Authorize]
     public class TicketController : Controller
     {
         private readonly ApplicationDbContext _db;
@@ -42,6 +44,17 @@ namespace BugTracker.Controllers
                 return RedirectToAction("Index");
             }
             return View(obj);
+        }
+
+        public IActionResult Details(int? id)
+        {
+            var ticket = _db.Tickets.Include(t => t.Comments).Include(t => t.Submitter).Include(t=> t.Developer).FirstOrDefault(t => t.Id == id);
+            if (ticket == null)
+            {
+                return NotFound();
+
+            }
+            return View(ticket);    
         }
     }
 }

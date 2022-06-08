@@ -1,0 +1,85 @@
+﻿
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="row">
+    <div class="col-xl-6">
+        <div class="card border-primary text-black bg-light mb-3 mt-3" >
+          <div class="card-header text-light bg-primary"><h5>@Model.Title</h5></div>
+          <div class="card-body">
+            <h4 class="card-title"></h4>
+            <div class="row m-3">
+                <div class="text-muted small">Description</div>
+                <p class="card-text">@Model.Description</p>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="row m-3">
+                <div class="col-4">
+                    <div class="text-muted small">Status</div>
+                    <span class="badge rounded-pill bg-primary">@Model.Status</span>
+                </div>
+                <div class="col-4">
+                    <div class="text-muted small">Priority</div>
+                    <span class="badge rounded-pill bg-primary">@Model.Priority</span>
+                </div>
+                <div class="col-4">
+                    <div class="text-muted small">Type</div>
+                    <span class="badge rounded-pill bg-primary">@Model.Type</span>
+                </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="row m-3">
+                <div class="col-6">
+                    <div class="text-muted small">Author</div>
+                    <span class="badge bg-primary">@Model.Submitter.FirstName @Model.Submitter.LastName</span>
+                </div>
+                <div class="col-6">
+                    <div class="text-muted small">Developer</div>
+                        @if(Model.Developer == null)
+                        {
+                            <span class="badge bg-danger">N/A</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-primary">@Model.Developer.FirstName @Model.Developer.LastName</span>
+                        }
+                    </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card border-primary mb-3 mt-3" >
+            <div class="card-header"><h5>Comments</h5></div>
+            <div class="card-body">
+
+            @Html.Partial("_CommentPartialView", new Comment {TicketId =  Model.Id })
+
+            <div class="dropdown-divider p-3"></div>
+            
+            <table class="display table table-hover" >
+                <thead>
+                    <tr class="table-primary">
+                        <th scope="col">Author</th>
+                        <th scope="col">Comment</th>
+                        <th scope="col">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    @foreach(var comment in Model.Comments)
+                    {
+                        <tr>
+                            <td>@comment.Author.FirstName</td>
+                            <td>@comment.Message</td>
+                            <td>@comment.Date</td>
+                        </tr>
+                    } 
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,19 +1,24 @@
-﻿using BugTracker.Data;
+﻿using BugTracker.Areas.Identity.Data;
+using BugTracker.Data;
 using BugTracker.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using System.Dynamic;
 
 namespace BugTracker.Controllers
 {
+    [Authorize]
     public class ProjectController : Controller
     {
         private readonly ApplicationDbContext _db;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ProjectController(ApplicationDbContext db)
+        public ProjectController(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
         {
             _db = db;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
@@ -31,8 +36,11 @@ namespace BugTracker.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Project obj)
+        public async Task<IActionResult> Create(Project obj)
         {
+            var user = await _userManager.GetUserAsync(User);
+            obj.AssignedUsers = new List<ApplicationUser>();
+            obj.AssignedUsers.Add(user);
             if (ModelState.IsValid)
             {
                 _db.Projects.Add(obj);
@@ -113,6 +121,10 @@ namespace BugTracker.Controllers
             int inProgress = 0;
             int closed = 0;
             int finished = 0;
+            // type counters
+            int bugFix = 0;
+            int improve = 0;
+            int feature = 0;
 
             int total = 0;
             foreach(Ticket t in project.Tickets)
@@ -156,26 +168,67 @@ namespace BugTracker.Controllers
                             finished++; break;
                         }
                 }
+                switch (t.Type)
+                {
+                    case TicketType.BugFix:
+                        {
+                            bugFix++; break;
+                        }
+                    case TicketType.Improve:
+                        {
+                            improve++; break;
+                        }
+                    case TicketType.Feature:
+                        {
+                            feature++; break;
+                        }
+                }
 
             }
+            if (total > 0)
+            {
+                // CHART JS priority
+                string[] labels = new string[] { "Low", "Intermediate", "Urgent", "Maximum" };
+                int[] dataArr = new int[] { low * 100 / total, intermediate * 100 / total, urgent * 100 / total, maximum * 100 / total };
+                string[] backgroundColor = new string[] { "rgb(51, 153, 255)", "rgb(0, 255, 204)", "rgb(204, 153, 255)", "rgb(255, 204, 153)" };
+                Chart.Data.Datasets datasets = new Chart.Data.Datasets();
+                datasets.data = dataArr;
+                datasets.label = "Ticket Priority";
+                datasets.backgroundColor = backgroundColor;
+                Chart.Data data = new Chart.Data();
+                data.labels = labels;
+                data.datasets = new List<Chart.Data.Datasets>();
+                data.datasets.Add(datasets);
+                Chart chart = new Chart();
+                chart.type = "pie";
+                chart.responsive = true;
+                chart.data = data;
+                ViewBag.priorityData = JsonConvert.SerializeObject(chart);
 
-            // CHART JS
-            string[] labels = new string[] { "Low", "Intermediate", "Urgent", "Maximum" };
-            int[] dataArr = new int[] { low * 100 / total, intermediate * 100 / total, urgent * 100 / total, maximum * 100 / total };
-            string[] backgroundColor = new string[] { "rgb(51, 153, 255)", "rgb(0, 255, 204)", "rgb(204, 153, 255)", "rgb(255, 204, 153)" };
-            Chart.Data.Datasets datasets = new Chart.Data.Datasets();
-            datasets.data = dataArr;
-            datasets.label = "Ticket Priority";
-            datasets.backgroundColor = backgroundColor;
-            Chart.Data data = new Chart.Data();
-            data.labels = labels;
-            data.datasets = new List<Chart.Data.Datasets>();
-            data.datasets.Add(datasets);
-            Chart chart = new Chart();
-            chart.type = "pie";
-            chart.responsive = true;
-            chart.data = data;
-            ViewBag.priorityData = JsonConvert.SerializeObject(chart);
+                //CHART JS status
+                labels = new string[] { "Pending", "In Progress", "Closed", "Finished" };
+                dataArr = new int[] { pending * 100 / total, inProgress * 100 / total, closed * 100 / total, finished * 100 / total };
+                // keep same colors
+                datasets.data = dataArr;
+                data.labels = labels;
+                datasets.label = "Ticket Status";
+                ViewBag.statusData = JsonConvert.SerializeObject(chart);
+
+                //CHART JS type
+                labels = new string[] { "Bug Fix", "Improvement", "Feature" };
+                dataArr = new int[] { bugFix * 100 / total, improve * 100 / total, feature * 100 / total };
+                // keep same colors
+                datasets.data = dataArr;
+                data.labels = labels;
+                datasets.label = "Ticket Type";
+                ViewBag.typeData = JsonConvert.SerializeObject(chart);
+                ViewBag.showChart = "Yes";
+            }
+            else
+            {
+                ViewBag.showChart = "No";
+            }
+
             return View(project);
         }
 
