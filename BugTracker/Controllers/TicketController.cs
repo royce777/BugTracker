@@ -48,7 +48,7 @@ namespace BugTracker.Controllers
 
         public IActionResult Details(int? id)
         {
-            var ticket = _db.Tickets.Include(t => t.Comments).Include(t => t.Submitter).Include(t=> t.Developer).FirstOrDefault(t => t.Id == id);
+            var ticket = _db.Tickets.Include(t => t.Submitter).Include(t=> t.Developer).FirstOrDefault(t => t.Id == id);
             if (ticket == null)
             {
                 return NotFound();

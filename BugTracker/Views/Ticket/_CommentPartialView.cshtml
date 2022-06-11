@@ -1,4 +1,4 @@
-﻿@model Comment
+﻿@model CommentDTO
 @using Microsoft.AspNetCore.Identity
 @using BugTracker.Areas.Identity.Data
 
@@ -8,18 +8,70 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    string TicketId = Model.TicketId.ToString();
+    int TicketId = Model.Comment.TicketId;
     string userId = userManager.GetUserId(User);
 }
 
-   <form method="post" action="@Url.Action("Create", "Comment")"  >
-        <div class="form-floating mb-3">
-            @Html.AntiForgeryToken()
-            <input asp-for="AuthorId" type="hidden" value="@userId"/>
-            <input asp-for="TicketId" type="hidden" value="@TicketId" />
-            <input class="form-control" asp-for="Message" aria-required="true"/>
-            <label class="form-label" asp-for="Message"></label>
-            <span asp-validation-for="Message" class="text-danger"></span>
-            <button type="submit" class="btn btn-primary m-1">Comment</button>
+        <div class="card border-primary mb-3 mt-3" >
+            <div class="card-header"><h5>Comments</h5></div>
+            <div class="card-body">
+                <form id="commentForm" method="post" action="@Url.Action("Create", "Comment")"  >
+                <div class="form-floating mb-3">
+                    @Html.AntiForgeryToken()
+                    <input asp-for="Comment.TicketId" type="hidden" value="@TicketId"/>
+                    <input asp-for="Comment.AuthorId" type="hidden" value="@userId"/>
+                    <input class="form-control" asp-for="Comment.Message" aria-required="true"/>
+                    <label class="form-label" asp-for="Comment.Message"></label>
+                    <span asp-validation-for="Comment.Message" class="text-danger"></span>
+                    <button type="submit" class="btn btnComment btn-primary m-1">Comment</button>
+                </div>
+                </form>
+
+            <div class="dropdown-divider p-3"></div>
+            
+            <table class="partialdisp table table-hover" >
+                <thead>
+                    <tr class="table-primary">
+                        <th scope="col">Author</th>
+                        <th scope="col">Comment</th>
+                        <th scope="col">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    @foreach(var comment in Model.CommentList)
+                    {
+                        <tr>
+                            <td>@comment.Author.FirstName</td>
+                            <td>@comment.Message</td>
+                            <td>@comment.Date</td>
+                        </tr>
+                    } 
+                </tbody>
+            </table>
+            </div>
         </div>
-    </form>
+
+    <script>
+        $(document).ready(function () {
+            $('table.partialdisp').DataTable();
+        });
+
+        $(function () {
+        $('.btnComment').on('click', function (event) {
+            event.preventDefault();
+            var url = "/Comment/Create";
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: $('#commentForm').serializeArray(),
+                error: function (ts) { alert(ts.responseText) 
+                },
+                success: function (result) {
+                    $("#partialComments").html(result);
+                }
+            });
+        });
+    });
+    </script>
+

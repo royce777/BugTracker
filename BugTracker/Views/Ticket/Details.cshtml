@@ -50,36 +50,17 @@
         </div>
     </div>
     <div class="col-xl-6">
-        <div class="card border-primary mb-3 mt-3" >
-            <div class="card-header"><h5>Comments</h5></div>
-            <div class="card-body">
+        @*@Html.Partial("_CommentPartialView", new CommentDTO {Comment = new Comment{ TicketId = Model.Id }})
+        *@
+        <div id="partialComments">
 
-            @Html.Partial("_CommentPartialView", new Comment {TicketId =  Model.Id })
-
-            <div class="dropdown-divider p-3"></div>
-            
-            <table class="display table table-hover" >
-                <thead>
-                    <tr class="table-primary">
-                        <th scope="col">Author</th>
-                        <th scope="col">Comment</th>
-                        <th scope="col">Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    
-                    @foreach(var comment in Model.Comments)
-                    {
-                        <tr>
-                            <td>@comment.Author.FirstName</td>
-                            <td>@comment.Message</td>
-                            <td>@comment.Date</td>
-                        </tr>
-                    } 
-                </tbody>
-            </table>
-            </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+    $('#partialComments').load('@Url.Action("Index", "Comment")', {ticketId : @Model.Id});
+    </script>
+}
 

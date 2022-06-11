@@ -3,6 +3,7 @@ using BugTracker.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using BugTracker.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.Controllers
 {
@@ -10,29 +11,46 @@ namespace BugTracker.Controllers
     {
 
         private readonly ApplicationDbContext _db;
-        private readonly UserManager<ApplicationUser> _userManager;
 
-        public CommentController(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
+        public CommentController(ApplicationDbContext db)
         {
             _db = db;
-            _userManager = userManager;
         }
-        public IActionResult Index()
+        public IActionResult Index(int ticketId)
         {
-            return View();
+            var comments = new CommentDTO()
+            {
+                CommentList = _db.Comments.Include(c => c.Author).Where(c => c.TicketId == ticketId).ToList(),
+                Comment = new Comment
+                {
+                    TicketId = ticketId
+                }
+
+            };
+            return PartialView("/Views/Ticket/_CommentPartialView.cshtml",comments);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Comment obj)
+        public IActionResult Create(CommentDTO commentData)
         {
-            if (ModelState.IsValid)
+            //TODO: Add client side validation for empty comment !
+            Comment com = commentData.Comment;
+            _db.Comments.Add(com);
+            _db.SaveChanges();
+            // return Redirect(Request.Headers["Referer"].ToString());
+            return RedirectToAction("Index",new { ticketId = com.TicketId });
+        }
+
+        public IActionResult Delete(int id)
+        {
+            var commentToDelete = _db.Comments.First(c => c.Id == id);
+            if(commentToDelete != null)
             {
-                _db.Comments.Add(obj);
+                _db.Comments.Remove(commentToDelete);
                 _db.SaveChanges();
-                return Redirect(Request.Headers["Referer"].ToString());
             }
-            return View(obj);
+            return RedirectToAction("Index");
         }
     }
 }
