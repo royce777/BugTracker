@@ -5,48 +5,58 @@
 }
 <div class="row">
     <div class="col-xl-6">
-        <div class="card border-primary text-black bg-light mb-3 mt-3" >
-          <div class="card-header text-light bg-primary"><h5>@Model.Title</h5></div>
-          <div class="card-body">
-            <h4 class="card-title"></h4>
-            <div class="row m-3">
-                <div class="text-muted small">Description</div>
-                <p class="card-text">@Model.Description</p>
-            </div>
-            <div class="dropdown-divider"></div>
-            <div class="row m-3">
-                <div class="col-4">
-                    <div class="text-muted small">Status</div>
-                    <span class="badge rounded-pill bg-primary">@Model.Status</span>
-                </div>
-                <div class="col-4">
-                    <div class="text-muted small">Priority</div>
-                    <span class="badge rounded-pill bg-primary">@Model.Priority</span>
-                </div>
-                <div class="col-4">
-                    <div class="text-muted small">Type</div>
-                    <span class="badge rounded-pill bg-primary">@Model.Type</span>
-                </div>
-            </div>
-            <div class="dropdown-divider"></div>
-            <div class="row m-3">
-                <div class="col-6">
-                    <div class="text-muted small">Author</div>
-                    <span class="badge bg-primary">@Model.Submitter.FirstName @Model.Submitter.LastName</span>
-                </div>
-                <div class="col-6">
-                    <div class="text-muted small">Developer</div>
-                        @if(Model.Developer == null)
-                        {
-                            <span class="badge bg-danger">N/A</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-primary">@Model.Developer.FirstName @Model.Developer.LastName</span>
-                        }
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-primary text-black bg-light mb-3 mt-3" >
+                  <div class="card-header text-light bg-primary"><h5>@Model.Title</h5></div>
+                  <div class="card-body">
+                    <h4 class="card-title"></h4>
+                    <div class="row m-3">
+                        <div class="text-muted small">Description</div>
+                        <p class="card-text">@Model.Description</p>
                     </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="row m-3">
+                        <div class="col-4">
+                            <div class="text-muted small">Status</div>
+                            <span class="badge rounded-pill bg-primary">@Model.Status</span>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-muted small">Priority</div>
+                            <span class="badge rounded-pill bg-primary">@Model.Priority</span>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-muted small">Type</div>
+                            <span class="badge rounded-pill bg-primary">@Model.Type</span>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="row m-3">
+                        <div class="col-6">
+                            <div class="text-muted small">Author</div>
+                            <span class="badge bg-primary">@Model.Submitter.FirstName @Model.Submitter.LastName</span>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Developer</div>
+                                @if(Model.Developer == null)
+                                {
+                                    <span class="badge bg-danger">N/A</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-primary">@Model.Developer.FirstName @Model.Developer.LastName</span>
+                                }
+                            </div>
+                    </div>
+                  </div>
+                </div>
+
             </div>
-          </div>
+            <div class="col-12">
+                <div id="partialAttachments">
+
+                </div>
+            </div>
         </div>
     </div>
     <div class="col-xl-6">
@@ -61,6 +71,7 @@
 @section Scripts {
     <script>
     $('#partialComments').load('@Url.Action("Index", "Comment")', {ticketId : @Model.Id});
+    $('#partialAttachments').load('@Url.Action("Index", "Attachment")', {ticketId : @Model.Id});
     </script>
 }
 

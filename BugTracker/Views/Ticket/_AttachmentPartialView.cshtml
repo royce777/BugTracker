@@ -1,0 +1,98 @@
+﻿@model AttachmentDTO 
+@using Microsoft.AspNetCore.Identity
+@using BugTracker.Areas.Identity.Data
+
+@inject UserManager<ApplicationUser> userManager
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    int TicketId = Model.Attachment.TicketId;
+    string userId = userManager.GetUserId(User);
+}
+
+        <div class="card border-primary mb-3 mt-3" >
+            <div class="card-header"><h5>Attachments</h5></div>
+            <div class="card-body">
+                <form enctype="multipart/form-data" id="attachmentForm" method="post" action="@Url.Action("Create", "Attachment")"  >
+                <div class=" form-floating mb-3">
+                    @Html.AntiForgeryToken()
+                    <input asp-for="Attachment.TicketId" type="hidden" value="@TicketId"/>
+                    <input asp-for="Attachment.AuthorId" type="hidden" value="@userId"/>
+                    <div class="form-floating">
+                        <input class="form-control" asp-for="Attachment.Description" aria-required="true"/>
+                        <label class="form-label" asp-for="Attachment.Description"></label>
+                        <span asp-validation-for="Attachment.Description" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <input type="file" asp-for="FormFile" class="form-control custom-file-input mt-3" />
+                    </div>
+                    <button type="submit" class="btn btnAttachment btn-primary m-1">Add</button>
+                </div>
+                </form>
+
+            <div class="dropdown-divider p-3"></div>
+            
+            <table class="partialdisp table table-hover" >
+                <thead>
+                    <tr class="table-primary">
+                        <th scope="col">File</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Author</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    @foreach(var att in Model.AttachmentList)
+                    {
+                        <tr>
+                            <td> <a href="@Url.Action("Download", "Attachment", new {id = att.Id})"><i class="bi bi-cloud-arrow-down-fill"></i></a></td>
+                            <td>@att.FileName</td>
+                            <td>@att.Author.FirstName</td>
+                            <td>@att.Description</td>
+                            <td>@att.Date</td>
+                        </tr>
+                    } 
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+    <script>
+        $(document).ready(function () {
+            $('table.partialdisp').DataTable();
+            // file upload control
+            $('.custom-file-input').on("change", function() {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).next('.custom-file-label').html(fileName);
+            })
+        });
+
+        $(function () {
+        $('.btnAttachment').on('click', function (event) {
+            event.preventDefault();
+            var url = "/Attachment/Create";
+            // using FormData to submit the form, as the simple serializeArray()
+            // wont work with <input type="file" > !!
+            var formData = new FormData(document.getElementById("attachmentForm"));
+            $.ajax({
+                type: "POST",
+                url: url,
+                processData: false,
+                contentType: false,
+                data: formData,
+                error: function (ts) { alert(ts.responseText) 
+                },
+                success: function (result) {
+                    $("#partialAttachments").html(result);
+                }
+            });
+        });
+    });
+    </script>
+
+
+

@@ -1,7 +1,5 @@
-﻿using BugTracker.Areas.Identity.Data;
-using BugTracker.Models;
+﻿using BugTracker.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
 using BugTracker.Data;
 using Microsoft.EntityFrameworkCore;
 
