@@ -87,5 +87,20 @@ namespace BugTracker.Controllers
             }
             return View(obj);
         }
+        public IActionResult Delete(int? id)
+        {
+            if(id==null || id == 0)
+            {
+                return NotFound();
+            }
+            var ticket = _db.Tickets.Find(id);
+            if(ticket == null)
+            {
+                return NotFound();
+            }
+            _db.Tickets.Remove(ticket);
+            _db.SaveChanges();
+            return Redirect(Request.Headers["Referer"].ToString()); 
+        }
     }
 }
