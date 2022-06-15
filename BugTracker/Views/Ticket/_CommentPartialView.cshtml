@@ -61,16 +61,21 @@
         $('.btnComment').on('click', function (event) {
             event.preventDefault();
             var url = "/Comment/Create";
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: $('#commentForm').serializeArray(),
-                error: function (ts) { alert(ts.responseText) 
-                },
-                success: function (result) {
-                    $("#partialComments").html(result);
-                }
-            });
+            var $form = $('#commentForm');
+            $.validator.unobtrusive.parse($form);
+            if ($form.valid()) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: $('#commentForm').serializeArray(),
+                    error: function(ts) {
+                        alert(ts.responseText)
+                    },
+                    success: function(result) {
+                        $("#partialComments").html(result);
+                    }
+                });
+            }
         });
     });
     </script>

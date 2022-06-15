@@ -27,6 +27,7 @@
                     </div>
                     <div>
                         <input type="file" asp-for="FormFile" class="form-control custom-file-input mt-3" />
+                        <span asp-validation-for="FormFile" class="text-danger"></span>
                     </div>
                     <button type="submit" class="btn btnAttachment btn-primary m-1">Add</button>
                 </div>
@@ -75,21 +76,25 @@
         $('.btnAttachment').on('click', function (event) {
             event.preventDefault();
             var url = "/Attachment/Create";
+            var $form = $('#attachmentForm');
+            $.validator.unobtrusive.parse($form);
+            if ($form.valid()) {
+                var formData = new FormData(document.getElementById("attachmentForm"));
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    error: function (ts) { alert(ts.responseText) 
+                    },
+                    success: function (result) {
+                        $("#partialAttachments").html(result);
+                    }
+                });
+            }
             // using FormData to submit the form, as the simple serializeArray()
             // wont work with <input type="file" > !!
-            var formData = new FormData(document.getElementById("attachmentForm"));
-            $.ajax({
-                type: "POST",
-                url: url,
-                processData: false,
-                contentType: false,
-                data: formData,
-                error: function (ts) { alert(ts.responseText) 
-                },
-                success: function (result) {
-                    $("#partialAttachments").html(result);
-                }
-            });
         });
     });
     </script>
