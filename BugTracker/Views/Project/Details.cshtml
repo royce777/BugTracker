@@ -101,20 +101,22 @@
     </div>
 </div>
 
-
-
-<script>
-  const priorityChart = new Chart(
-    document.getElementById('priorityChart'),
-    @Html.Raw(ViewBag.priorityData)
-  );
-const statusChart = new Chart(
-    document.getElementById('statusChart'),
-    @Html.Raw(ViewBag.statusData)
+@if(ViewBag.showChart == "Yes")
+{
+    <script>
+      const priorityChart = new Chart(
+        document.getElementById('priorityChart'),
+        @Html.Raw(ViewBag.priorityData)
       );
-const typeChart = new Chart(
-    document.getElementById('typeChart'),
-    @Html.Raw(ViewBag.typeData)
-    );
-</script>
+    const statusChart = new Chart(
+        document.getElementById('statusChart'),
+        @Html.Raw(ViewBag.statusData)
+          );
+    const typeChart = new Chart(
+        document.getElementById('typeChart'),
+        @Html.Raw(ViewBag.typeData)
+        );
+    </script>
+}
+
  

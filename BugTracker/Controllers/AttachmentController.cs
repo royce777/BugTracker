@@ -7,7 +7,7 @@ namespace BugTracker.Controllers
 {
     public class AttachmentController : Controller
     {
-        // TODO : Generate download link in table + security considerations
+        // TODO : security considerations on file upload
         private readonly ApplicationDbContext _db;
 
         public AttachmentController(ApplicationDbContext db)
@@ -32,7 +32,6 @@ namespace BugTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AttachmentDTO attachmentData)
         {
-            //TODO: Add client side validation for empty description or file!
             Attachment att = attachmentData.Attachment;
             using (var memoryStream = new MemoryStream())
             {

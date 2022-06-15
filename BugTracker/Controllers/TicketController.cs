@@ -56,5 +56,36 @@ namespace BugTracker.Controllers
             }
             return View(ticket);    
         }
+        
+        public IActionResult Edit(int? id)
+        {
+            if(id==null || id == 0)
+            {
+                return NotFound();
+            }
+            var ticket = _db.Tickets.Find(id);
+            if (ticket == null)
+            {
+                return NotFound();
+            }
+            var projects = _db.Projects.ToList();
+            var users = _db.Users.ToList();
+            ViewData["ProjectsList"] = projects;
+            ViewData["Users"] = users;
+            return View(ticket);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Ticket obj)
+        {
+            if (ModelState.IsValid)
+            {
+                _db.Tickets.Update(obj);
+                _db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View(obj);
+        }
     }
 }

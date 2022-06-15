@@ -20,9 +20,11 @@
                     @Html.AntiForgeryToken()
                     <input asp-for="Comment.TicketId" type="hidden" value="@TicketId"/>
                     <input asp-for="Comment.AuthorId" type="hidden" value="@userId"/>
-                    <input class="form-control" asp-for="Comment.Message" aria-required="true"/>
-                    <label class="form-label" asp-for="Comment.Message"></label>
-                    <span asp-validation-for="Comment.Message" class="text-danger"></span>
+                    <div class="form-floating">
+                        <input class="form-control" asp-for="Comment.Message" aria-required="true"/>
+                        <label class="form-label" asp-for="Comment.Message"></label>
+                        <span asp-validation-for="Comment.Message" class="text-danger"></span>
+                    </div>
                     <button type="submit" class="btn btnComment btn-primary m-1">Comment</button>
                 </div>
                 </form>
