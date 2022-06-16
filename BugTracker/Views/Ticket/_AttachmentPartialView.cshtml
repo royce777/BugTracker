@@ -35,14 +35,14 @@
 
             <div class="dropdown-divider p-3"></div>
             
-            <table class="partialdisp table table-hover" >
+            <table class="w-100 partialAttachments table table-hover" >
                 <thead>
                     <tr class="table-primary">
-                        <th scope="col">File</th>
-                        <th scope="col">Name</th>
+                        <th data-priority="2" scope="col">File</th>
+                        <th data-priority="1" scope="col">Name</th>
                         <th scope="col">Author</th>
                         <th scope="col">Description</th>
-                        <th scope="col">Date</th>
+                        <th scope="col" class="d-none d-lg-table-cell">Date</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -54,7 +54,7 @@
                             <td>@att.FileName</td>
                             <td>@att.Author.FirstName</td>
                             <td>@att.Description</td>
-                            <td>@att.Date</td>
+                            <td class="d-none d-lg-table-cell">@att.Date</td>
                         </tr>
                     } 
                 </tbody>
@@ -64,7 +64,9 @@
 
     <script>
         $(document).ready(function () {
-            $('table.partialdisp').DataTable();
+            $('table.partialAttachments').DataTable({
+                responsive: true
+            });
             // file upload control
             $('.custom-file-input').on("change", function() {
                 var fileName = $(this).val().split("\\").pop();

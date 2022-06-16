@@ -31,11 +31,11 @@
 
             <div class="dropdown-divider p-3"></div>
             
-            <table class="partialdisp table table-hover" >
+            <table class="w-100 partialComments table table-hover" >
                 <thead>
                     <tr class="table-primary">
                         <th scope="col">Author</th>
-                        <th scope="col">Comment</th>
+                        <th data-priority="1" scope="col">Comment</th>
                         <th scope="col">Date</th>
                     </tr>
                 </thead>
@@ -56,7 +56,9 @@
 
     <script>
         $(document).ready(function () {
-            $('table.partialdisp').DataTable();
+            $('table.partialComments').DataTable({
+                responsive: true
+            });
         });
 
         $(function () {
