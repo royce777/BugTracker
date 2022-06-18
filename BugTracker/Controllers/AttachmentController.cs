@@ -16,7 +16,7 @@ namespace BugTracker.Controllers
         }
         public IActionResult Index(int ticketId)
         {
-            var att = new AttachmentDTO()
+            var att = new AttachmentViewModel()
             {
                 AttachmentList = _db.Attachments.Include(c => c.Author).Where(c => c.TicketId == ticketId).ToList(),
                 Attachment = new Attachment
@@ -30,8 +30,9 @@ namespace BugTracker.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(AttachmentDTO attachmentData)
+        public async Task<IActionResult> Create(AttachmentViewModel attachmentData)
         {
+            // TODO : Add validation for empty description !
             Attachment att = attachmentData.Attachment;
             using (var memoryStream = new MemoryStream())
             {

@@ -1,4 +1,4 @@
-﻿@model CommentDTO
+﻿@model CommentViewModel
 @using Microsoft.AspNetCore.Identity
 @using BugTracker.Areas.Identity.Data
 
@@ -30,6 +30,7 @@
                 </form>
 
             <div class="dropdown-divider p-3"></div>
+
             
             <table class="w-100 partialComments table table-hover" >
                 <thead>
@@ -56,10 +57,11 @@
 
     <script>
         $(document).ready(function () {
-            $('table.partialComments').DataTable({
+            var table = $('table.partialComments').DataTable({
                 responsive: true
             });
         });
+
 
         $(function () {
         $('.btnComment').on('click', function (event) {

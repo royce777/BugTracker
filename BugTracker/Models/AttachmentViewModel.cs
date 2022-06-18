@@ -2,7 +2,7 @@
 
 namespace BugTracker.Models
 {
-    public class AttachmentDTO
+    public class AttachmentViewModel
     {
         public Attachment Attachment { get; set; }
         public List<Attachment> AttachmentList { get; set; }

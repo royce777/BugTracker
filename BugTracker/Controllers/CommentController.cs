@@ -16,7 +16,7 @@ namespace BugTracker.Controllers
         }
         public IActionResult Index(int ticketId)
         {
-            var comments = new CommentDTO()
+            var comments = new CommentViewModel()
             {
                 CommentList = _db.Comments.Include(c => c.Author).Where(c => c.TicketId == ticketId).ToList(),
                 Comment = new Comment
@@ -30,12 +30,15 @@ namespace BugTracker.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CommentDTO commentData)
+        public IActionResult Create(CommentViewModel commentData)
         {
-            //TODO: Add client side validation for empty comment !
+            //TODO: Add client side validation for empty comment (now it's server side)!
             Comment com = commentData.Comment;
-            _db.Comments.Add(com);
-            _db.SaveChanges();
+            if (ModelState.IsValid)
+            {
+                _db.Comments.Add(com);
+                _db.SaveChanges();
+            }
             // return Redirect(Request.Headers["Referer"].ToString());
             return RedirectToAction("Index",new { ticketId = com.TicketId });
         }

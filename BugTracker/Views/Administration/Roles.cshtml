@@ -1,0 +1,58 @@
+﻿@model RoleViewModel
+@{
+    ViewBag.Title = "Roles";
+}
+
+<div class="card border-primary mb-3 mt-3" >
+  <div class="card-header bg-primary text-white"><h3>Roles</h3></div>
+  <div class="card-body">
+    <form asp-action="CreateRole" method="post" class="mt-3">
+    <div asp-validation-summary="All" class="text-danger">
+    </div>
+    <div class="form-group row">
+        <div class="col-3 p-1 text-end">
+            <label class="form-label">New Role</label>
+        </div>
+        <div class="col-6">
+            <input asp-for="RoleName" class="form-control" placeholder="Name">
+            <span asp-validation-for="RoleName" class="text-danger"></span>
+        </div>
+        <div class="col-3">
+			<button type="submit" class="btn btn-primary" style="width:auto">
+				Add
+			</button>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-sm-10">
+        </div>
+    </div>
+    </form>
+    
+    <div class="dropdown-divider p-3"></div>
+
+    <table class="w-100 display table table hover">
+        <thead>
+            <tr class="table-primary">
+                <th data-priority="1" scope="col">Name</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+                @foreach(var role in Model.roles)
+                {
+                    <tr>
+                        <td>@role.Name</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a asp-controller="Administration" asp-action="ManageRole" asp-route-id="@role.Id" class="btn btn-info"><i class="bi bi-pencil-square"></i></a>
+                                <a asp-controller="Administration" asp-action="DeleteRole" asp-route-id="@role.Id" class="btn btn-warning"><i class="bi bi-trash-fill"> </i></a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+        </tbody>
+    </table>
+  </div>
+</div>
