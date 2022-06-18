@@ -98,13 +98,13 @@
             });
 
             $('table tbody').on('click', 'tr', function () {
-                $(this).toggleClass('selected');
+                $(this).toggleClass('table-active');
             });
         //});
 
 
         $('.btnAdd').on('click', function (event) {
-            var selectedRows = othersTab.rows('.selected');
+            var selectedRows = othersTab.rows('.table-active');
             var unames = new Array();
             selectedRows.every(function(rowIdx, tableLoop, rowLoop) {
                 var d = this.data();
@@ -126,14 +126,14 @@
                         var d = this.data();
                         console.log(d);
                         usersTab.row.add(d).draw();
-                        this.remove().draw();
                     });
+                    othersTab.rows('.table-active').remove().draw( false );
                 }
             });
         });
 
         $('.btnRemove').on('click', function (event) {
-            var selectedRows = usersTab.rows('.selected');
+            var selectedRows = usersTab.rows('.table-active');
             var unames = new Array();
             selectedRows.every(function(rowIdx, tableLoop, rowLoop) {
                 var d = this.data();
@@ -156,8 +156,8 @@
                         var d = this.data();
                         console.log(d);
                         othersTab.row.add(d).draw();
-                        this.remove().draw();
                     });
+                    usersTab.rows('.table-active').remove().draw( false );
                 }
             });
         });
