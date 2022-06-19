@@ -124,7 +124,6 @@
                 success: function(result) {
                     selectedRows.every(function(rowIdx, tableLoop, rowLoop) {
                         var d = this.data();
-                        console.log(d);
                         usersTab.row.add(d).draw();
                     });
                     othersTab.rows('.table-active').remove().draw( false );
@@ -137,7 +136,6 @@
             var unames = new Array();
             selectedRows.every(function(rowIdx, tableLoop, rowLoop) {
                 var d = this.data();
-                console.log(d);
                 unames.push(d[2]);
             });
             var url = "/Administration/RemoveUserRole";
@@ -154,7 +152,6 @@
                 success: function(result) {
                     selectedRows.every(function(rowIdx, tableLoop, rowLoop) {
                         var d = this.data();
-                        console.log(d);
                         othersTab.row.add(d).draw();
                     });
                     usersTab.rows('.table-active').remove().draw( false );
