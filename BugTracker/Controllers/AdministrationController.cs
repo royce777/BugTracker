@@ -2,6 +2,7 @@
 using BugTracker.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.Controllers
 {
@@ -121,11 +122,34 @@ namespace BugTracker.Controllers
         public async Task<IActionResult> DeleteRole(string id)
         {
             IdentityRole role = await _roleManager.FindByIdAsync(id);
-            await _roleManager.DeleteAsync(role);
-            return RedirectToAction("Roles");
+            if(role == null)
+            {
+                return NotFound();
+            }
+            try
+            {
+                var result = await _roleManager.DeleteAsync(role);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Roles");
+                }
+                foreach(var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+                return View("Roles");
+            }
+            catch(DbUpdateException ex)
+            {
+                ViewBag.ErrorTitle = $"{role.Name} role is still in use";
+                ViewBag.ErrorMessage = $"{role.Name} role can't be deleted as there " +
+                    $"are still users in this role. Please remove users from this " +
+                    $"role first";
+                return View("Error");
+            }
         }
 
-        public async Task<IActionResult> Users()
+        public IActionResult Users()
         {
             List<ApplicationUser> users = _userManager.Users.ToList();
             return View(users);

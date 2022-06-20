@@ -34,7 +34,7 @@ namespace BugTracker.Migrations
 
                     b.HasIndex("AssignedUsersId");
 
-                    b.ToTable("ApplicationUserProject");
+                    b.ToTable("ApplicationUserProject", (string)null);
                 });
 
             modelBuilder.Entity("BugTracker.Areas.Identity.Data.ApplicationUser", b =>
@@ -150,7 +150,7 @@ namespace BugTracker.Migrations
 
                     b.HasIndex("TicketId");
 
-                    b.ToTable("Attachments");
+                    b.ToTable("Attachments", (string)null);
                 });
 
             modelBuilder.Entity("BugTracker.Models.Comment", b =>
@@ -181,7 +181,7 @@ namespace BugTracker.Migrations
 
                     b.HasIndex("TicketId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("BugTracker.Models.Project", b =>
@@ -205,7 +205,7 @@ namespace BugTracker.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("BugTracker.Models.Ticket", b =>
@@ -257,7 +257,7 @@ namespace BugTracker.Migrations
 
                     b.HasIndex("SubmitterId");
 
-                    b.ToTable("Tickets");
+                    b.ToTable("Tickets", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
