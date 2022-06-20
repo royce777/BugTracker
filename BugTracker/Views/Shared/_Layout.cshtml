@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using BugTracker.Areas.Identity.Data
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -43,15 +47,17 @@
             <li class="nav-item">
               <a class="nav-link" href="#">About</a>
             </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Manage</a>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" asp-controller="Administration" asp-action="Users">Users</a>
-                <a class="dropdown-item" asp-controller="Administration" asp-action="Roles">Roles</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">Separated link</a>
-              </div>
-            </li>
+            @if(SignInManager.IsSignedIn(User) && User.IsInRole("Admin")){
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Manage</a>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" asp-controller="Administration" asp-action="Users">Users</a>
+                    <a class="dropdown-item" asp-controller="Administration" asp-action="Roles">Roles</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">Separated link</a>
+                  </div>
+                </li>
+            }
           </ul>
           <partial name="_LoginPartial"/>
           <form class="d-flex">

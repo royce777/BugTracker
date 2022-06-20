@@ -21,13 +21,23 @@ namespace BugTracker.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            IEnumerable<Project> objProjects = _db.Projects;
-            return View(objProjects);
+            if (User.IsInRole("Admin"))
+            {
+                IEnumerable<Project> objProjects = _db.Projects;
+                return View(objProjects);
+            }
+            else
+            {
+                var user = await _userManager.GetUserAsync(User);
+                IEnumerable<Project> objProjects = _db.Projects.Where(p => p.AssignedUsers.Contains(user));
+                return View(objProjects);
+            }
         }
 
         //GET
+        [Authorize(Roles = "Admin,Project Manager")]
         public IActionResult Create()
         {
 
@@ -36,6 +46,7 @@ namespace BugTracker.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Project Manager")]
         public async Task<IActionResult> Create(Project obj)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -51,6 +62,7 @@ namespace BugTracker.Controllers
         }
 
         // GET
+        [Authorize(Roles = "Admin,Project Manager")]
         public IActionResult Edit(int? id)
         {
            if(id == null || id == 0)
@@ -67,6 +79,7 @@ namespace BugTracker.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Project Manager")]
         public IActionResult Edit(Project obj)
         {
             if (ModelState.IsValid)
@@ -77,6 +90,8 @@ namespace BugTracker.Controllers
             }
             return View(obj);
         }
+
+        [Authorize(Roles = "Admin,Project Manager")]
         public IActionResult Delete(int? id)
         {
            if(id == null || id == 0)
@@ -93,6 +108,7 @@ namespace BugTracker.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Project Manager")]
         public IActionResult DeletePOST(int? id)
         {
             var project = _db.Projects.Find(id);
@@ -105,11 +121,18 @@ namespace BugTracker.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             var project = _db.Projects.Include(p => p.Tickets).Include(p => p.AssignedUsers).FirstOrDefault( p => p.Id == id);
+            var user = await _userManager.GetUserAsync(User);
             if(project == null) {
                 return NotFound();
+            }
+            if (!project.AssignedUsers.Contains(user))
+            {
+                ViewBag.ErrorTitle = "Unable to view project details.";
+                ViewBag.ErrorMessage = "You are not a member of this project !";
+                return View("Error");
             }
             //priority counters
             int low = 0;

@@ -1,12 +1,23 @@
 ﻿@model Ticket 
 @using BugTracker.Areas.Identity.Data
 
+@{
+    bool disableProject = (@ViewBag.DisableProject != null);
+}
+
 <div class="card border-primary mt-4 mb-3" style="max-width: 200rem;">
   <div class="card-header">
-      <h3> Create Ticket </h3>
+        @if(disableProject)
+        {
+            <h3>Add Ticket to : @ViewBag.ProjectName</h3>
+        }
+        else
+        {
+            <h3> Create Ticket </h3>
+        }
   </div>
   <div class="card-body">
-       <form method="post" >
+       <form method="post" asp-action="Create" >
         <div class="form-floating mb-3">
             <input class="form-control" asp-for="Title" aria-required="true"/>
             <label class="form-label" asp-for="Title"></label>
@@ -18,8 +29,17 @@
             <span asp-validation-for="Description" class="text-danger"></span>
         </div>
         <div class="form-floating mb-3">
-            @Html.DropDownListFor(t => t.ProjectId, new SelectList((IEnumerable<Project>)ViewData["ProjectsList"],"Id", "Title"), "  " ,new { @class="form-select"})
-            <label class="form-label" asp-for="Project"></label>
+            @if(disableProject)
+            {
+                @Html.DropDownListFor(t => t.ProjectId, new SelectList((IEnumerable<Project>)ViewData["ProjectsList"],"Id", "Title"), "  " ,new { @class="form-select", style ="display:none"})
+                <label class="form-label" style="display:none" asp-for="Project"></label>
+            }
+            else
+            {
+                @Html.DropDownListFor(t => t.ProjectId, new SelectList((IEnumerable<Project>)ViewData["ProjectsList"],"Id", "Title"), "  " ,new { @class="form-select"})
+                <label class="form-label" asp-for="Project"></label>
+                
+            }
         </div>
         <div class="form-floating mb-3">
             @Html.DropDownListFor(t => t.SubmitterId, new SelectList((IEnumerable<ApplicationUser>)ViewData["Users"],"Id", "FirstName"),"  ",new { @class="form-select"})

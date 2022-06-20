@@ -1,6 +1,8 @@
-﻿using BugTracker.Data;
+﻿using BugTracker.Areas.Identity.Data;
+using BugTracker.Data;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,17 +13,29 @@ namespace BugTracker.Controllers
     public class TicketController : Controller
     {
         private readonly ApplicationDbContext _db;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public TicketController(ApplicationDbContext db)
+        public TicketController(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
         {
             _db = db;
+            _userManager = userManager;
         }   
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            IEnumerable<Ticket> tickets = _db.Tickets.Include(ticket => ticket.Project);
-            return View(tickets);
+            if (User.IsInRole("Admin"))
+            {
+                IEnumerable<Ticket> tickets = _db.Tickets.Include(ticket => ticket.Project);
+                return View(tickets);
+            }
+            else
+            {
+                var user = await _userManager.GetUserAsync(User);
+                IEnumerable<Ticket> tickets = _db.Tickets.Include(ticket => ticket.Project).Where(ticket => ticket.Project.AssignedUsers.Contains(user));
+                return View(tickets);
+            }
         }
+        [Authorize(Roles ="Admin")]
         public IActionResult Create()
         {
             //retrieve projects from DB
@@ -30,6 +44,30 @@ namespace BugTracker.Controllers
             ViewData["ProjectsList"] = projects;
             ViewData["Users"] = users;
             return View();
+        }
+        public async Task<IActionResult> CreateFromProject(int projectId)
+        {
+            // check is the user is in this project
+            var project = await _db.Projects.Include(p => p.AssignedUsers).FirstOrDefaultAsync(p => p.Id == projectId);
+            if(project == null)
+            {
+                return NotFound();
+            }
+            var user = await _userManager.GetUserAsync(User);
+            if (!project.AssignedUsers.Contains(user))
+            {
+                ViewBag.ErrorTitle = "Unable to create new ticket.";
+                ViewBag.ErrorMessage = "You are not a member of this project.";
+                return View("Error");
+            }
+            ViewBag.DisableProject = true;
+            ViewBag.ProjectName = project.Title;
+            var projects = _db.Projects.ToList();
+            var users = _db.Users.ToList();
+            ViewData["ProjectsList"] = projects;
+            ViewData["Users"] = users;
+            return View("Create");
+
         }
 
         [HttpPost]

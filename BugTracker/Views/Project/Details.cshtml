@@ -30,7 +30,14 @@
 <div class="row">
     <div class="col-xl-6">
         <div class="card border-primary m-3" >
-          <div class="card-header"><h4>Tickets</h4></div>
+          <div class="card-header">
+              <div class="row">
+                <h4 class="col">Tickets</h4>
+                <div class="col text-end">
+                    <a asp-controller="Ticket" asp-action="CreateFromProject" asp-route-projectId="@Model.Id" class="col btn btn-primary">New Ticket</a>
+                </div>
+              </div>
+          </div>
           <div class="card-body">
             <table class="w-100 display table table-hover" >
                 <thead>
