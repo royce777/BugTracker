@@ -79,6 +79,7 @@ namespace BugTracker.Controllers
             {
                 _db.Tickets.Add(obj);
                 _db.SaveChanges();
+                //return Redirect(Request.Headers["Referer"].ToString()); 
                 return RedirectToAction("Index");
             }
             return View(obj);
@@ -95,16 +96,27 @@ namespace BugTracker.Controllers
             return View(ticket);    
         }
         
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if(id==null || id == 0)
             {
                 return NotFound();
             }
-            var ticket = _db.Tickets.Find(id);
+            var ticket = await _db.Tickets.Include(t => t.Project.AssignedUsers).FirstOrDefaultAsync(t=> t.Id == id);
+            var user = await _userManager.GetUserAsync(User);
             if (ticket == null)
             {
                 return NotFound();
+            }
+            if (!ticket.Project.AssignedUsers.Contains(user) && !User.IsInRole("Admin") )
+            {
+                ViewBag.ErrorTitle = "Ticket " + ticket.Title + " cannot be edited.";
+                ViewBag.ErrorMessage = "You have no privileges to complete this operation.";
+                return View("Error");
+            }
+            if (User.IsInRole("Admin"))
+            {
+                ViewBag.Admin = true;
             }
             var projects = _db.Projects.ToList();
             var users = _db.Users.ToList();

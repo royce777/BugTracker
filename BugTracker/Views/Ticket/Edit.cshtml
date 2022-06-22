@@ -1,9 +1,13 @@
 ﻿@model Ticket 
 @using BugTracker.Areas.Identity.Data
 
+@{
+    bool admin = (ViewBag.Admin != null);
+}
+
 <div class="card border-primary mt-4 mb-3" style="max-width: 200rem;">
   <div class="card-header">
-      <h3> Update Ticket </h3>
+      <h3> Update Ticket: @Model.Title</h3>
   </div>
   <div class="card-body">
        <form method="post" asp-action="Edit" >
@@ -17,16 +21,28 @@
             <label class="form-label" asp-for="Description"></label>
             <span asp-validation-for="Description" class="text-danger"></span>
         </div>
-        <div class="form-floating mb-3">
-            @Html.DropDownListFor(t => t.ProjectId, new SelectList((IEnumerable<Project>)ViewData["ProjectsList"],"Id", "Title"), "  " ,new { @class="form-select"})
-            <label class="form-label" asp-for="Project"></label>
-        </div>
-        <div class="form-floating mb-3">
-            @Html.DropDownListFor(t => t.SubmitterId, new SelectList((IEnumerable<ApplicationUser>)ViewData["Users"],"Id", "FirstName"),"  ",new { @class="form-select"})
+            @if(admin)
+            {
+                <div class="form-floating mb-3">
+                    @Html.DropDownListFor(t => t.ProjectId, new SelectList((IEnumerable<Project>)ViewData["ProjectsList"],"Id", "Title"), "  " ,new { @class="form-select"})
+                    <label class="form-label" asp-for="Project"></label>
+                </div>
+            }
+            else
+            {
+                <div style="display:none" class="form-floating mb-3">
+                    @Html.DropDownListFor(t => t.ProjectId, new SelectList((IEnumerable<Project>)ViewData["ProjectsList"],"Id", "Title"), "  " ,new { @class="form-select"})
+                    <label class="form-label" asp-for="Project"></label>
+                </div>
+                
+            }
+
+        <div style="display:none" class="form-floating mb-3">
+            @Html.DropDownListFor(t => t.SubmitterId, new SelectList((IEnumerable<ApplicationUser>)ViewData["Users"],"Id", "UserName"),"  ",new { @class="form-select"})
             <label class="form-label" asp-for="Submitter"></label>
         </div>
         <div class="form-floating mb-3">
-            @Html.DropDownListFor(t => t.DeveloperId,  new SelectList((IEnumerable<ApplicationUser>)ViewData["Users"],"Id", "FirstName"), "  ",new { @class="form-select"})
+            @Html.DropDownListFor(t => t.DeveloperId,  new SelectList((IEnumerable<ApplicationUser>)ViewData["Users"],"Id", "UserName"), "  ",new { @class="form-select"})
             <label class="form-label" asp-for="Developer"></label>
         </div>
         <div class="form-floating mb-3">

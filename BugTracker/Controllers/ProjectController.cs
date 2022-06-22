@@ -128,7 +128,7 @@ namespace BugTracker.Controllers
             if(project == null) {
                 return NotFound();
             }
-            if (!project.AssignedUsers.Contains(user))
+            if (!project.AssignedUsers.Contains(user) && !User.IsInRole("Admin"))
             {
                 ViewBag.ErrorTitle = "Unable to view project details.";
                 ViewBag.ErrorMessage = "You are not a member of this project !";
@@ -253,6 +253,107 @@ namespace BugTracker.Controllers
             }
 
             return View(project);
+        }
+
+        public async Task<IActionResult> ManageProjectUsers(int? id)
+        {
+            if(id == null || id == 0)
+            {
+                return NotFound();
+            }
+            var project = await _db.Projects.Include(p => p.AssignedUsers).FirstOrDefaultAsync(p => p.Id == id);
+            if(project == null)
+            {
+                return NotFound();
+            }
+            var user = await _userManager.GetUserAsync(User);
+            if(!(project.AssignedUsers.Contains(user) && User.IsInRole("Project Manager")) && !User.IsInRole("Admin"))
+            {
+                ViewBag.ErrorTitle = "You cannot modify the team of this project.";
+                ViewBag.ErrorMessage = "Please verify you have the necessary privileges to complete this operation \n" +
+                    "NOTE : Only Admins and Project Managers can modify users assigned to the project.";
+                return View("Error");
+            }
+            ManageProjectUsersViewModel model = new ManageProjectUsersViewModel
+            {
+                Id = project.Id,
+                ProjectName = project.Title
+            };
+            foreach(var usr in _userManager.Users)
+            {
+                var roles = await _userManager.GetRolesAsync(usr);
+                if (project.AssignedUsers.Contains(usr))
+                {
+                    model.Members.Add(new UserRoles { User = usr, Roles = roles.ToList() });
+                }
+                else
+                {
+                    model.Others.Add(new UserRoles { User = usr, Roles = roles.ToList() });
+                }
+            }
+            return View(model);
+
+
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddUsers(string[] userNames, int projectId)
+        {
+            if(projectId== 0)
+            {
+                return NotFound();
+            }
+            var project = await _db.Projects.Include(p => p.AssignedUsers).FirstOrDefaultAsync(p => p.Id == projectId);
+            if(project == null)
+            {
+                return NotFound();
+            }
+            var user = await _userManager.GetUserAsync(User);
+            if(!(project.AssignedUsers.Contains(user) && User.IsInRole("Project Manager")) && !User.IsInRole("Admin"))
+            {
+                // generate some error to display
+                return View("Error");
+            }
+            foreach(string uname in userNames)
+            {
+                var usr = await _userManager.FindByNameAsync(uname);
+                if (user == null) return NotFound();
+                project.AssignedUsers.Add(usr);
+            }
+            _db.Projects.Update(project);
+            await _db.SaveChangesAsync();
+            return RedirectToAction("ManageProjectUsers", new { id = project.Id });
+
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveUsers(string[] userNames, int projectId)
+        {
+            if(projectId== 0)
+            {
+                return NotFound();
+            }
+            var project = await _db.Projects.Include(p => p.AssignedUsers).FirstOrDefaultAsync(p => p.Id == projectId);
+            if(project == null)
+            {
+                return NotFound();
+            }
+            var user = await _userManager.GetUserAsync(User);
+            if(!(project.AssignedUsers.Contains(user) && User.IsInRole("Project Manager")) && !User.IsInRole("Admin"))
+            {
+                // generate some error to display
+                return View("Error");
+            }
+            foreach(string uname in userNames)
+            {
+                var usr = await _userManager.FindByNameAsync(uname);
+                if (user == null) return NotFound();
+                project.AssignedUsers.Remove(usr);
+            }
+            _db.Projects.Update(project);
+            await _db.SaveChangesAsync();
+            return RedirectToAction("ManageProjectUsers", new { id = project.Id });
+
         }
 
     }

@@ -1,0 +1,189 @@
+﻿@model ManageProjectUsersViewModel
+
+@{
+    ViewData["Title"] = "Manage project users";
+}
+
+<div class="card border-primary mb-3 mt-3" >
+  <div class="card-header bg-primary text-white">
+      <h4>Manage Project Users</h4>
+  </div>
+  <div class="card-body">
+    <div class="row">
+        <h4 class="card-title col">@Model.ProjectName</h4>
+        <p class="text-secondary text-end col">@Model.Id</p>
+    </div>
+
+        <div class="dropdown-divider"></div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card shadow border-info mt-3" >
+                 <div class="card-header">
+                    <div class="row">
+                        <div class="col">
+                            <h5>Users in this project: </h5>
+                        </div>
+                        <div class="col text-end">
+                            <button class="btn btnRemove btn-danger"> Remove </button>
+                        </div>
+                    </div>
+                 </div>
+                 <div class="card-body">
+                    <table class="w-100 users table table-hover" >
+                        <thead>
+                            <tr class="table-primary">
+                                <th scope="col">First Name</th>
+                                <th scope="col">Last Name</th>
+                                <th scope="col">Username</th>
+                                <th scope="col">Roles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            @foreach(var userRole in Model.Members)
+                            {
+                                <tr>
+                                    <td>@userRole.User.FirstName</td>
+                                    <td>@userRole.User.LastName</td>
+                                    <td>@userRole.User.UserName</td>
+                                    <td>
+                                            @foreach(var role in userRole.Roles)
+                                            {
+                                               <span class="badge rounded-pill bg-dark">@role</span> 
+                                            }
+                                        </td>
+                                </tr>
+                            } 
+                        </tbody>
+                    </table>
+                 </div>
+                </div>
+                </div>
+
+            <div class="col-lg-6">
+                <div class="card shadow border-info mt-3" >
+                 <div class="card-header">
+                    <div class="row">
+                        <div class="col">
+                            <h5>Others : </h5>
+                        </div>
+                        <div class="col text-end">
+                            <button class="btn btnAdd btn-primary"> Add </button>
+                        </div>
+                    </div>
+                 </div>
+                 <div class="card-body">
+                    <table class="w-100 others table table-hover" >
+                        <thead>
+                            <tr class="table-primary">
+                                <th scope="col">First Name</th>
+                                <th scope="col">Last Name</th>
+                                <th scope="col">Username</th>
+                                <th scope="col">Roles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            @foreach(var userRole in Model.Others)
+                            {
+                                <tr>
+                                    <td>@userRole.User.FirstName</td>
+                                    <td>@userRole.User.LastName</td>
+                                    <td>@userRole.User.UserName</td>
+                                    <td>
+                                            @foreach(var role in userRole.Roles)
+                                            {
+                                               <span class="badge rounded-pill bg-dark">@role</span> 
+                                            }
+                                        </td>
+                                </tr>
+                            } 
+                        </tbody>
+                    </table>
+                 </div>
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+  </div>
+
+@section Scripts{
+<script>
+        //$(document).ready(function () {
+            var usersTab = $('table.users').DataTable({
+                responsive: true,
+            });
+            var othersTab = $('table.others').DataTable({
+                responsive: true,
+            });
+
+            $('table.users tbody').on('click', 'tr', function () {
+                $(this).toggleClass('table-warning');
+            });
+            $('table.others tbody').on('click', 'tr', function () {
+                $(this).toggleClass('table-success');
+            });
+        //});
+
+
+        $('.btnAdd').on('click', function (event) {
+            var selectedRows = othersTab.rows('.table-success');
+            var unames = new Array();
+            selectedRows.every(function(rowIdx, tableLoop, rowLoop) {
+                var d = this.data();
+                unames.push(d[2]);
+            });
+            var url = "/Project/AddUsers";
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: { 
+                    'userNames': unames,
+                    'projectId': '@Model.Id'
+                },
+                error: function(ts) {
+                    alert(ts.responseText)
+                },
+                success: function(result) {
+                    selectedRows.every(function(rowIdx, tableLoop, rowLoop) {
+                        var d = this.data();
+                        usersTab.row.add(d).draw();
+                    });
+                    othersTab.rows('.table-success').remove().draw( false );
+                }
+            });
+        });
+
+        $('.btnRemove').on('click', function (event) {
+            var selectedRows = usersTab.rows('.table-warning');
+            var unames = new Array();
+            selectedRows.every(function(rowIdx, tableLoop, rowLoop) {
+                var d = this.data();
+                unames.push(d[2]);
+            });
+            var url = "/Project/RemoveUsers";
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: { 
+                    'userNames': unames,
+                    'projectId': '@Model.Id'
+                },
+                error: function(ts) {
+                    alert(ts.responseText)
+                },
+                success: function(result) {
+                    selectedRows.every(function(rowIdx, tableLoop, rowLoop) {
+                        var d = this.data();
+                        othersTab.row.add(d).draw();
+                    });
+                    usersTab.rows('.table-warning').remove().draw( false );
+                }
+            });
+        });
+</script>
+}

@@ -73,7 +73,18 @@
     </div>
     <div class="col-xl-6">
         <div class="card border-primary m-3" >
-          <div class="card-header"><h4>Staff</h4></div>
+          <div class="card-header">
+              <div class="row">
+                <h4 class="col">Staff</h4>
+                    @if(User.IsInRole("Admin") || User.IsInRole("Project Manager"))
+                    {
+                        <div class="col text-end">
+                            <a asp-controller="Project" asp-action="ManageProjectUsers" asp-route-id="@Model.Id" class="col btn btn-primary">Manage</a>
+                        </div>
+                        
+                    }
+              </div>
+          </div>
           <div class="card-body">
             <table class="w-100 display table table-hover" >
                 <thead>

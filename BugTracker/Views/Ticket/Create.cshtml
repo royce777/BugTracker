@@ -17,7 +17,7 @@
         }
   </div>
   <div class="card-body">
-       <form method="post" asp-action="Create" >
+       <form id="ticketCreateForm" method="post" asp-action="Create" >
         <div class="form-floating mb-3">
             <input class="form-control" asp-for="Title" aria-required="true"/>
             <label class="form-label" asp-for="Title"></label>
@@ -67,12 +67,37 @@
             </select>
             <label class="form-label" asp-for="Type"></label>
         </div>
-        <button type="submit" class="btn btn-primary">Create</button>
-        <a asp-controller="Ticket" asp-action="Index" class="btn btn-secondary">Back</a>
+        <button type="submit" class="btn btn-primary btnSubmit">Create</button>
+        <a href="javascript: history.go(-1)" class="btn btn-secondary">Back</a>
         </form>
   </div>
 </div>
 
 @section Scripts{
     <partial name="_ValidationScriptsPartial" />
+    
+    @if(disableProject){
+        <script>
+        $('.btnSubmit').on('click', function (event) {
+            event.preventDefault();
+            var url = "/Ticket/Create";
+            var $form = $('#ticketCreateForm');
+            $.validator.unobtrusive.parse($form);
+            if ($form.valid()) {
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: $('#ticketCreateForm').serializeArray(),
+                    error: function(ts) {
+                        alert(ts.responseText)
+                    },
+                    success: function(result) {
+                        window.history.go(-1);
+                    }
+                });
+            }
+        });
+
+        </script>
+    }
 }
