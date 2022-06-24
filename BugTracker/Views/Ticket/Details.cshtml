@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    string actionButton = ViewBag.ActionButton;
 }
 <div class="row">
     <div class="col-xl-6">
@@ -13,12 +14,28 @@
                           <div class="col">
                             <h5 class="pt-2">@Model.Title</h5>
                           </div>
-                          <div class="col text-end">
-                            <a asp-controller="Ticket" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">
-                                 <i class="bi bi-pen"></i> &nbsp; Edit Ticket 
-                            </a>
-                          </div>
-                      </div>
+                            <div class="col text-end">
+                            @if(User.IsInRole("Admin") || User.IsInRole("Project Manager"))
+                            {
+                                <a asp-controller="Ticket" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">
+                                     <i class="bi bi-pen"></i> &nbsp; Edit Ticket 
+                                </a>
+                            }
+                            @if(actionButton == "Start")
+                            {
+
+                                    <button class="btn btn-success actionButton">Start</button>
+                                }
+                                else if (actionButton == "Finish")
+                                {
+                                    <button class="btn btn-info actionButton">Finish</button>
+                                }
+                                else if(actionButton == "Close")
+                                {
+                                    <button class="btn btn-warning actionButton">Close</button>
+                                }
+                            </div>
+                        </div>
                   </div>
                   <div class="card-body">
                     <h4 class="card-title"></h4>
@@ -30,7 +47,7 @@
                     <div class="row m-3">
                         <div class="col-4">
                             <div class="text-muted small">Status</div>
-                            <span class="badge rounded-pill bg-primary">@Model.Status</span>
+                            <span id="status" class="badge rounded-pill bg-primary">@Model.Status</span>
                         </div>
                         <div class="col-4">
                             <div class="text-muted small">Priority</div>
@@ -83,6 +100,33 @@
     <script>
     $('#partialComments').load('@Url.Action("Index", "Comment")', {ticketId : @Model.Id});
     $('#partialAttachments').load('@Url.Action("Index", "Attachment")', {ticketId : @Model.Id});
+
+    $('.actionButton').on('click', function(event) {
+        var action = $('.actionButton').text();
+        var ticketId = @Model.Id;
+        var url = "/Ticket/WorkflowAction";
+        var btn = $(this);
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: {
+                'action': action,
+                'ticketId': ticketId
+            },
+            error: function(ts) {
+                alert(ts.responseText);
+            },
+            success: function(result) {
+                if (result.action == '') {
+                    btn.remove();
+                }
+                else{
+                    btn.html(result.action);
+                }
+                $('#status').html(result.status);
+            }
+        });
+    });
     </script>
 }
 
