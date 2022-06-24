@@ -1,10 +1,12 @@
-﻿
+﻿@using Microsoft.AspNetCore.Identity
+@using BugTracker.Areas.Identity.Data
+@inject UserManager<ApplicationUser> userManager
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="card text-white bg-primary mt-3" >
+<div class="card shadow-lg text-white bg-primary mt-3" >
   <div class="card-header"><h3>@Model.Title</h3></div>
   <div class="card-body">
     <h4 class="card-title"></h4>
@@ -29,7 +31,7 @@
 
 <div class="row">
     <div class="col-xl-6">
-        <div class="card border-primary m-3" >
+        <div class="card shadow-lg border-primary m-3" >
           <div class="card-header">
               <div class="row">
                 <h4 class="col">Tickets</h4>
@@ -58,9 +60,13 @@
                             <td>@ticket.Priority</td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-dark"><i class="bi bi-info-square"></i></a>
-                                    <a asp-controller="Ticket" asp-action="Edit" asp-route-id="@ticket.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
-                                    <a asp-controller="Ticket" asp-action="Delete" asp-route-id="@ticket.Id" class="btn btn-warning"><i class="bi bi-trash-fill"></i></a>
+                                    <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-info"><i class="bi bi-info-square"></i></a>
+                                    @if(User.IsInRole("Admin") || User.IsInRole("Project Manager"))
+                                    {
+                                        <a asp-controller="Ticket" asp-action="Edit" asp-route-id="@ticket.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
+                                        <a asp-controller="Ticket" asp-action="Delete" asp-route-id="@ticket.Id" class="btn btn-warning"><i class="bi bi-trash-fill"></i></a>
+                                        
+                                    }
                                 </div>
                             </td>
                         </tr>
@@ -72,7 +78,7 @@
 
     </div>
     <div class="col-xl-6">
-        <div class="card border-primary m-3" >
+        <div class="card shadow-lg border-primary m-3" >
           <div class="card-header">
               <div class="row">
                 <h4 class="col">Staff</h4>
@@ -92,7 +98,7 @@
                         <th scope="col">First Name</th>
                         <th scope="col">Last Name</th>
                         <th scope="col">Username</th>
-                        <th scope="col">Action</th>
+                        <th scope="col">Roles</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -104,10 +110,14 @@
                             <td>@user.LastName</td>
                             <td>@user.UserName</td>
                             <td>
-                                <div class="btn-group" role="group">
-                                    <a asp-controller="Project" asp-action="Edit" asp-route-id="@user.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
-                                    <a asp-controller="Project" asp-action="Delete" asp-route-id="@user.Id" class="btn btn-warning"><i class="bi bi-trash-fill"></i></a>
-                                </div>
+                                @{
+                                    var roles = await userManager.GetRolesAsync(user);
+                                    @foreach(var role in roles)
+                                    {
+                                       <span class="badge rounded-pill bg-info">@role</span> 
+                                    }
+                                }
+
                             </td>
                         </tr>
                     } 
