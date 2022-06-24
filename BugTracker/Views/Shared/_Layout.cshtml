@@ -42,9 +42,6 @@
               <a class="nav-link" asp-controller="Ticket" asp-action="Index">Tickets</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Pricing</a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link" href="#">About</a>
             </li>
             @if(SignInManager.IsSignedIn(User) && User.IsInRole("Admin")){
@@ -60,10 +57,12 @@
             }
           </ul>
           <partial name="_LoginPartial"/>
+          @*
           <form class="d-flex">
             <input class="form-control me-sm-2" type="text" placeholder="Search">
             <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
           </form>
+          *@
         </div>
       </div>
     </nav>

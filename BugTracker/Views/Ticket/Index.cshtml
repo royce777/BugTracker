@@ -1,8 +1,8 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using Microsoft.AspNetCore.Identity
+@using BugTracker.Areas.Identity.Data
+@inject UserManager<ApplicationUser> userManager
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Tickets";
     Layout = "/Views/Shared/_Layout.cshtml";
 }
 
@@ -14,7 +14,7 @@
                     <h2>All Tickets</h2>
                 }
                 else{
-                    <h2>Your Tickets</h2>
+                    <h2>My Tickets</h2>
                 }
             </div>
             @if (User.IsInRole("Admin"))
@@ -26,42 +26,109 @@
                 </div>
             }
         </div>
+        @if (User.IsInRole("Developer"))
+        {
+            <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="true" data-bs-toggle="tab" href="#allTickets">All tickets</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active"  data-bs-toggle="tab" href="#assignedTickets">Assigned to me</a>
+                </li>
+            </ul>
+        }
     </div>
-    <div class="card-body">
-        <table class="w-100 display table table-hover" >
-            <thead>
-                <tr class="table-primary">
-                    <th data-priority="1" scope="col">Title</th>
-                    <th scope="col">Project</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Priority</th>
-                    <th data-priority="2" scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                
-                @foreach(var ticket in Model)
-                {
-                    <tr>
-                        <td>@ticket.Title</td>
-                        <td>@ticket.Project.Title</td>
-                        <td>@ticket.Status</td>
-                        <td>@ticket.Priority</td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-info"><i class="bi bi-info-square"></i></a>
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <a asp-controller="Ticket" asp-action="Edit" asp-route-id="@ticket.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
-                                    <a asp-controller="Ticket" asp-action="Delete" asp-route-id="@ticket.Id" class="btn btn-warning"><i class="bi bi-trash-fill"></i></a>
-                                }
-                            </div>
-                        </td>
+    <div class="card-body tab-content">
+        <div class="tab-pane " id="allTickets">
+            <table class="w-100 all table table-hover" >
+                <thead>
+                    <tr class="table-primary">
+                        <th data-priority="1" scope="col">Title</th>
+                        <th scope="col">Project</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Priority</th>
+                        <th data-priority="2" scope="col">Action</th>
                     </tr>
-                } 
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    
+                    @foreach(var ticket in Model)
+                    {
+                        <tr>
+                            <td>@ticket.Title</td>
+                            <td>@ticket.Project.Title</td>
+                            <td>@ticket.Status</td>
+                            <td>@ticket.Priority</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-info"><i class="bi bi-info-square"></i></a>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a asp-controller="Ticket" asp-action="Edit" asp-route-id="@ticket.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
+                                        <a asp-controller="Ticket" asp-action="Delete" asp-route-id="@ticket.Id" class="btn btn-warning"><i class="bi bi-trash-fill"></i></a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    } 
+                </tbody>
+            </table>
+
+        </div>
+        <div class="tab-pane active" id="assignedTickets">
+            <table class="w-100 assigned table table-hover" >
+                <thead>
+                    <tr class="table-primary">
+                        <th data-priority="1" scope="col">Title</th>
+                        <th scope="col">Project</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Priority</th>
+                        <th data-priority="2" scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var ticket in Model)
+                    {
+                        var userId = userManager.GetUserId(User);
+                        if(userId == ticket.DeveloperId)
+                        {
+                            <tr>
+                                <td>@ticket.Title</td>
+                                <td>@ticket.Project.Title</td>
+                                <td>@ticket.Status</td>
+                                <td>@ticket.Priority</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-info"><i class="bi bi-info-square"></i></a>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <a asp-controller="Ticket" asp-action="Edit" asp-route-id="@ticket.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
+                                            <a asp-controller="Ticket" asp-action="Delete" asp-route-id="@ticket.Id" class="btn btn-warning"><i class="bi bi-trash-fill"></i></a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    } 
+                </tbody>
+            </table>
+
+        </div>
 
     </div>
 </div>
 
+@section Scripts{
+    <script>
+        $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+            $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+        });
+        $('table.all').DataTable({
+            responsive: true,
+        });
+        $('table.assigned').DataTable({
+            responsive: true,
+        });
+
+    </script>
+}
