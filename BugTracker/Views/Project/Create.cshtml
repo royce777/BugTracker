@@ -5,14 +5,14 @@
         <div class="row pb-2">
             <h2 class="text-primary">Create Project</h2>
         </div>
-        <div class="mb-3">
-            <label asp-for="Title"></label>
-            <input asp-for="Title" />
+        <div class="form-floating mb-3">
+            <input asp-for="Title" class="form-control"/>
+            <label asp-for="Title" class="form-label"></label>
             <span asp-validation-for="Title" class="text-danger"></span>
         </div>
-        <div class="mb-3">
-            <label asp-for="Description"></label>
-            <input asp-for="Description" />
+        <div class="form-floating mb-3">
+            <input asp-for="Description" class="form-control"/>
+            <label asp-for="Description" class="form-label"></label>
             <span asp-validation-for="Description" class="text-danger"></span>
         </div>
         <button type="submit" class="btn btn-primary">Create</button>

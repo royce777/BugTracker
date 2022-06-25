@@ -155,7 +155,7 @@ namespace BugTracker.Controllers
             {
                 _db.Tickets.Update(obj);
                 _db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", new {id = obj.Id});
             }
             return View(obj);
         }

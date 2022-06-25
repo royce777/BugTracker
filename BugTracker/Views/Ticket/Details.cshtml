@@ -2,7 +2,11 @@
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    string actionButton = ViewBag.ActionButton;
+    string actionButton = "";
+    if(ViewBag.ActionButton != null)
+    {
+        actionButton = ViewBag.ActionButton;
+    }
 }
 <div class="row">
     <div class="col-xl-6">
@@ -60,11 +64,11 @@
                     </div>
                     <div class="dropdown-divider"></div>
                     <div class="row m-3">
-                        <div class="col-6">
+                        <div class="col-4">
                             <div class="text-muted small">Author</div>
                             <span class="badge bg-primary">@Model.Submitter.FirstName @Model.Submitter.LastName</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-4">
                             <div class="text-muted small">Developer</div>
                                 @if(Model.Developer == null)
                                 {
@@ -75,6 +79,10 @@
                                     <span class="badge bg-primary">@Model.Developer.FirstName @Model.Developer.LastName</span>
                                 }
                             </div>
+                        <div class="col-4">
+                            <div class="text-muted small">Project</div>
+                            <a asp-controller="Project" asp-action="Details" asp-route-id="@Model.ProjectId" ><span class="badge bg-primary">@Model.Project.Title</span></a>
+                        </div>
                     </div>
                   </div>
                 </div>
@@ -121,6 +129,13 @@
                     btn.remove();
                 }
                 else{
+                    btn.blur();
+                    if (result.action == 'Finish') {
+                        btn.removeClass("btn-success").addClass("btn-info");
+                    }
+                    else if (result.action == 'Close') {
+                        btn.removeClass("btn-info").addClass("btn-warning");
+                    }
                     btn.html(result.action);
                 }
                 $('#status').html(result.status);
