@@ -1,0 +1,73 @@
+﻿@model HomeCardSliderViewModel
+@{
+    
+    string Type = "";
+    if(Model.projects != null)
+    {
+        Type = "project";
+    }
+    else if(Model.tickets != null)
+    {
+        Type = "ticket";
+    }
+    
+}
+
+<div class="container-fluid my-5">
+        <h1 class="text-center fw-bold display-1 mb-5">Owl <span class="text-danger">Carousel</span></h1>
+        <div class="row">
+            <div class="col-12 m-auto">
+                <div class="owl-carousel owl-theme">
+                @if(Type == "project")
+                {
+                    for(int i=0; i<Model.projects.Count; i++)
+                    {
+                        <div class="item">
+                            <div class="card shadow" style="width: 18rem;">
+                              <img class="card-img-top" src="~/images/project-management-crop.png" alt="Card image cap">
+                              <div class="card-body">
+                                <h5 class="card-title">
+                                    @Model.projects[i].Title
+                                    </h5>
+                                <p class="card-text">
+                                    @Model.projects[i].Description
+                                    </p>
+                              </div>
+                              <div class="card-body">
+                                <a href="#" class="card-link">Card link</a>
+                                <a href="#" class="card-link">Another link</a>
+                              </div>
+                            </div>
+                        </div>
+
+                    }
+                }
+                else if(Type == "ticket"){
+                    @for(int i=0; i< Model.tickets.Count; i++)
+                    {
+                        <div class="item"> 
+                            <div class="card shadow" style="width: 18rem;">
+                              <img class="card-img-top" src="~/images/ticket-icon.png" alt="Card image cap">
+                              <div class="card-body">
+                                <h5 class="card-title">
+                                    @Model.tickets[i].Title
+                                    </h5>
+                                <p class="card-text">
+                                    @Model.tickets[i].Description
+                                    </p>
+                              </div>
+                              <div class="card-body">
+                                <a href="#" class="card-link">Card link</a>
+                                <a href="#" class="card-link">Another link</a>
+                              </div>
+                            </div>
+                        </div>
+                    }
+                }
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+

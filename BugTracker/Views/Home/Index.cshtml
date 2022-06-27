@@ -6,3 +6,29 @@
     <h1 class="display-4">Welcome to BugTracker</h1>
     <img src="https://cdn-icons-png.flaticon.com/512/1508/1508875.png" class="img-fluid " alt="Responsive image">
 </div>
+
+@await Component.InvokeAsync("HomeCardSlider", new { type = "project" })
+
+@await Component.InvokeAsync("HomeCardSlider", new { type = "ticket"});
+
+@section Scripts {
+
+    <script >
+        $('.owl-carousel').owlCarousel({
+            loop: true,
+            margin: 15,
+            nav: true,
+            responsive: {
+                0: {
+                    items: 1
+                },
+                600: {
+                    items: 2
+                },
+                1000: {
+                    items: 3
+                }
+            }
+        });
+    </script>
+}
