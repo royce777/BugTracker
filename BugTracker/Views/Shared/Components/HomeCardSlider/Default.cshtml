@@ -14,8 +14,15 @@
 }
 
 <div class="container-fluid my-5">
-        <h1 class="text-center fw-bold display-1 mb-5">Owl <span class="text-danger">Carousel</span></h1>
-        <div class="row">
+    @if(Type == "project")
+    {
+        <h3 class="text-center fw-bold  mb-3">Your <span class="text-danger">Projects</span></h3>
+    }
+    else if(Type == "ticket")
+    {
+        <h3 class="text-center fw-bold  mb-3">Your <span class="text-danger">Tickets</span></h3>
+    }
+    <div class="row">
             <div class="col-12 m-auto">
                 <div class="owl-carousel owl-theme">
                 @if(Type == "project")
@@ -23,12 +30,16 @@
                     for(int i=0; i<Model.projects.Count; i++)
                     {
                         <div class="item">
-                            <div class="card shadow" style="width: 18rem;">
-                              <img class="card-img-top" src="~/images/project-management-crop.png" alt="Card image cap">
+                            <div class="card shadow border-info m-2 h-100" >
+                                <div class="card-header">
+                                <img class="img-fluid" src="~/images/project-icon.png" alt="Card image cap">
+                                </div>
                               <div class="card-body">
                                 <h5 class="card-title">
                                     @Model.projects[i].Title
                                     </h5>
+                                <div class="dropdown-divider mt-3 mb-3">
+                                    </div>
                                 <p class="card-text">
                                     @Model.projects[i].Description
                                     </p>
@@ -46,15 +57,19 @@
                     @for(int i=0; i< Model.tickets.Count; i++)
                     {
                         <div class="item"> 
-                            <div class="card shadow" style="width: 18rem;">
-                              <img class="card-img-top" src="~/images/ticket-icon.png" alt="Card image cap">
+                            <div class="card shadow border-warning m-2 h-100" >
+                                <div class="card-header">
+                                <img class="img-fluid"  src="~/images/ticket-icon-small.png" alt="Card image cap">
+                                </div>
                               <div class="card-body">
                                 <h5 class="card-title">
                                     @Model.tickets[i].Title
                                     </h5>
-                                <p class="card-text">
+                                <div class="dropdown-divider mt-3 mb-3">
+                                    </div>
+                                <div  class="card-text">
                                     @Model.tickets[i].Description
-                                    </p>
+                                    </div>
                               </div>
                               <div class="card-body">
                                 <a href="#" class="card-link">Card link</a>
