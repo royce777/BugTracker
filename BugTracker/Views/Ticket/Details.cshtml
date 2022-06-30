@@ -105,6 +105,7 @@
 </div>
 
 @section Scripts {
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
     $('#partialComments').load('@Url.Action("Index", "Comment")', {ticketId : @Model.Id});
     $('#partialAttachments').load('@Url.Action("Index", "Attachment")', {ticketId : @Model.Id});
@@ -126,14 +127,17 @@
             },
             success: function(result) {
                 if (result.action == '') {
+                    toastr.success("Ticket closed !");
                     btn.remove();
                 }
                 else{
                     btn.blur();
                     if (result.action == 'Finish') {
+                        toastr.success("Ticket started !");
                         btn.removeClass("btn-success").addClass("btn-info");
                     }
                     else if (result.action == 'Close') {
+                        toastr.success("Ticket finished !");
                         btn.removeClass("btn-info").addClass("btn-warning");
                     }
                     btn.html(result.action);

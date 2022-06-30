@@ -4,7 +4,6 @@ using BugTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.Controllers
@@ -80,8 +79,14 @@ namespace BugTracker.Controllers
                 _db.Tickets.Add(obj);
                 _db.SaveChanges();
                 //return Redirect(Request.Headers["Referer"].ToString()); 
+                TempData["success"] = "Ticket successfully created ! ";
+                if (Request.Headers["Referer"].ToString().Contains("CreateFromProject"))
+                {
+                    return RedirectToAction("Details", "Project", new { id = obj.ProjectId });
+                }
                 return RedirectToAction("Index");
             }
+            TempData["error"] = "Unable to create the ticket, check information and try again !";
             return View(obj);
         }
 
@@ -155,8 +160,10 @@ namespace BugTracker.Controllers
             {
                 _db.Tickets.Update(obj);
                 _db.SaveChanges();
+                TempData["success"] = "Ticket successfully updated !";
                 return RedirectToAction("Details", new {id = obj.Id});
             }
+            TempData["error"] = "Unable to edit ticket, check information and try again !";
             return View(obj);
         }
         public IActionResult Delete(int? id)
@@ -172,6 +179,7 @@ namespace BugTracker.Controllers
             }
             _db.Tickets.Remove(ticket);
             _db.SaveChanges();
+            TempData["success"] = "Ticket successfully deleted !";
             return Redirect(Request.Headers["Referer"].ToString()); 
         }
 

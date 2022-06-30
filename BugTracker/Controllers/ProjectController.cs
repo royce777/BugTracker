@@ -56,8 +56,10 @@ namespace BugTracker.Controllers
             {
                 _db.Projects.Add(obj);
                 _db.SaveChanges();
+                TempData["success"] = "Project succesfully created";
                 return RedirectToAction("Index");
             }
+            TempData["error"] = "Control provided data and try again !";
             return View(obj);
         }
 
@@ -86,8 +88,10 @@ namespace BugTracker.Controllers
             {
                 _db.Projects.Update(obj);
                 _db.SaveChanges();
+                TempData["success"] = "Project information updated !";
                 return RedirectToAction("Index");
             }
+            TempData["error"] = "Check provided info and try again !";
             return View(obj);
         }
 
@@ -118,6 +122,7 @@ namespace BugTracker.Controllers
             }
             _db.Projects.Remove(project);
             _db.SaveChanges();
+            TempData["success"] = "Project successfully deleted !";
             return RedirectToAction("Index");
         }
 
@@ -314,6 +319,9 @@ namespace BugTracker.Controllers
                 // generate some error to display
                 return View("Error");
             }
+            if(userNames.Length < 1)
+            {
+            }
             foreach(string uname in userNames)
             {
                 var usr = await _userManager.FindByNameAsync(uname);
@@ -343,6 +351,9 @@ namespace BugTracker.Controllers
             {
                 // generate some error to display
                 return View("Error");
+            }
+            if(userNames.Length < 1)
+            {
             }
             foreach(string uname in userNames)
             {

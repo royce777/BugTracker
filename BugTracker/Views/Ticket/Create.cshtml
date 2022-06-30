@@ -75,29 +75,4 @@
 
 @section Scripts{
     <partial name="_ValidationScriptsPartial" />
-    
-    @if(disableProject){
-        <script>
-        $('.btnSubmit').on('click', function (event) {
-            event.preventDefault();
-            var url = "/Ticket/Create";
-            var $form = $('#ticketCreateForm');
-            $.validator.unobtrusive.parse($form);
-            if ($form.valid()) {
-                $.ajax({
-                    type: "POST",
-                    url: url,
-                    data: $('#ticketCreateForm').serializeArray(),
-                    error: function(ts) {
-                        alert(ts.responseText)
-                    },
-                    success: function(result) {
-                        window.history.go(-1);
-                    }
-                });
-            }
-        });
-
-        </script>
-    }
 }

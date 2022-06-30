@@ -94,7 +94,7 @@
                                     <td>
                                             @foreach(var role in userRole.Roles)
                                             {
-                                               <span class="badge rounded-pill bg-dark">@role</span> 
+                                               <span class="badge rounded-pill bg-info">@role</span> 
                                             }
                                         </td>
                                 </tr>
@@ -112,6 +112,9 @@
   </div>
 
 @section Scripts{
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 <script>
         //$(document).ready(function () {
             var usersTab = $('table.users').DataTable({
@@ -154,6 +157,7 @@
                         usersTab.row.add(d).draw();
                     });
                     othersTab.rows('.table-success').remove().draw( false );
+                    toastr.success('User/s successfully added !');
                 }
             });
         });
@@ -182,6 +186,7 @@
                         othersTab.row.add(d).draw();
                     });
                     usersTab.rows('.table-warning').remove().draw( false );
+                    toastr.success('User/s successfully removed!');
                 }
             });
         });

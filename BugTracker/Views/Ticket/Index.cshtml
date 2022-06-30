@@ -26,20 +26,17 @@
                 </div>
             }
         </div>
-        @if (User.IsInRole("Developer"))
-        {
-            <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
-                <li class="nav-item">
-                    <a class="nav-link" aria-current="true" data-bs-toggle="tab" href="#allTickets">All tickets</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active"  data-bs-toggle="tab" href="#assignedTickets">Assigned to me</a>
-                </li>
-            </ul>
-        }
+        <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="true" data-bs-toggle="tab" href="#allTickets">All tickets</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link"  data-bs-toggle="tab" href="#assignedTickets">Assigned to me</a>
+            </li>
+        </ul>
     </div>
     <div class="card-body tab-content">
-        <div class="tab-pane " id="allTickets">
+        <div class="tab-pane active" id="allTickets">
             <table class="w-100 all table table-hover" >
                 <thead>
                     <tr class="table-primary">
@@ -75,7 +72,7 @@
             </table>
 
         </div>
-        <div class="tab-pane active" id="assignedTickets">
+        <div class="tab-pane " id="assignedTickets">
             <table class="w-100 assigned table table-hover" >
                 <thead>
                     <tr class="table-primary">
