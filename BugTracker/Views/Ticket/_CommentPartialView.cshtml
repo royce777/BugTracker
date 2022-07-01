@@ -55,34 +55,38 @@
             </div>
         </div>
 
-    <script>
-        $(document).ready(function () {
-            var table = $('table.partialComments').DataTable({
-                responsive: true
-            });
-        });
 
+<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-        $(function () {
-        $('.btnComment').on('click', function (event) {
-            event.preventDefault();
-            var url = "/Comment/Create";
-            var $form = $('#commentForm');
-            $.validator.unobtrusive.parse($form);
-            if ($form.valid()) {
-                $.ajax({
-                    type: "POST",
-                    url: url,
-                    data: $('#commentForm').serializeArray(),
-                    error: function(ts) {
-                        alert(ts.responseText)
-                    },
-                    success: function(result) {
-                        $("#partialComments").html(result);
-                    }
-                });
-            }
+<script>
+    $(document).ready(function () {
+        var table = $('table.partialComments').DataTable({
+            responsive: true
         });
     });
-    </script>
+
+
+    $(function () {
+    $('.btnComment').on('click', function (event) {
+        event.preventDefault();
+        var url = "/Comment/Create";
+        var $form = $('#commentForm');
+        $.validator.unobtrusive.parse($form);
+        if ($form.valid()) {
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: $('#commentForm').serializeArray(),
+                error: function(ts) {
+                    alert(ts.responseText)
+                },
+                success: function(result) {
+                    toastr.success('Comment added !');
+                    $("#partialComments").html(result);
+                }
+            });
+        }
+    });
+});
+</script>
 

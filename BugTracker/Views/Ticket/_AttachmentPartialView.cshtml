@@ -62,6 +62,7 @@
             </div>
         </div>
 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
         $(document).ready(function () {
             $('table.partialAttachments').DataTable({
@@ -91,6 +92,7 @@
                     error: function (ts) { alert(ts.responseText) 
                     },
                     success: function (result) {
+                        toastr.success('Attachment added!');
                         $("#partialAttachments").html(result);
                     }
                 });

@@ -95,6 +95,7 @@
 </div>
 
 @section Scripts{
+<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script>
         //$(document).ready(function () {
             var usersTab = $('table.users').DataTable({
@@ -134,6 +135,7 @@
                         usersTab.row.add(d).draw();
                     });
                     othersTab.rows('.table-active').remove().draw( false );
+                    toastr.success("Users added to the role!");
                 }
             });
         });
@@ -162,6 +164,7 @@
                         othersTab.row.add(d).draw();
                     });
                     usersTab.rows('.table-active').remove().draw( false );
+                    toastr.success("Users removed from the role !");
                 }
             });
         });

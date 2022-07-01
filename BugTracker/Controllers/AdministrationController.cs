@@ -43,6 +43,7 @@ namespace BugTracker.Controllers
                 IdentityResult result = await _roleManager.CreateAsync(identityRole);
                 if (result.Succeeded)
                 {
+                    TempData["success"] = "New role has been created !";
                     return RedirectToAction("Roles");
                 }
                 foreach(IdentityError error in result.Errors)
@@ -133,6 +134,7 @@ namespace BugTracker.Controllers
                 var result = await _roleManager.DeleteAsync(role);
                 if (result.Succeeded)
                 {
+                    TempData["success"] = "Role deleted";
                     return RedirectToAction("Roles");
                 }
                 foreach(var error in result.Errors)
@@ -208,6 +210,7 @@ namespace BugTracker.Controllers
                 ModelState.AddModelError("", "Cannot add roles to user");
                 return View(model);
             }
+            TempData["success"] = "User roles have been modified!";
             return RedirectToAction("Users");
         }
     }
