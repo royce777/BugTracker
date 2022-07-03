@@ -62,7 +62,28 @@ namespace BugTracker.Controllers
             ViewBag.DisableProject = true;
             ViewBag.ProjectName = project.Title;
             var projects = _db.Projects.ToList();
-            var users = _db.Users.ToList();
+            List<ApplicationUser> users = new List<ApplicationUser>();
+            if (project.Demo)
+            {
+                foreach(var usr in _db.Users.ToList())
+                {
+                    if ( await _userManager.IsInRoleAsync(usr, "Demo"))
+                    {
+                        users.Add(usr);
+                    }
+                }
+            }
+            else
+            {
+                foreach(var usr in _db.Users.ToList())
+                {
+                    if(! await _userManager.IsInRoleAsync(usr, "Demo"))
+                    {
+                        users.Add(usr);
+                    }
+                }
+            }
+            _db.Users.ToList();
             ViewData["ProjectsList"] = projects;
             ViewData["Users"] = users;
             return View("Create");

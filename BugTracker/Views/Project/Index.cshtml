@@ -18,7 +18,7 @@
                     <h2>My Projects</h2>
                 }
             </div>
-            @if(User.IsInRole("Project Manager") || User.IsInRole("Admin"))
+            @if(User.IsInRole("Project Manager") || User.IsInRole("Admin")|| User.IsInRole("Demo"))
             {
                 <div class="col-6 text-end">
                     <a asp-controller="Project" asp-action="Create" class="btn btn-info">

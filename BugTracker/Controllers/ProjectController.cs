@@ -28,6 +28,11 @@ namespace BugTracker.Controllers
                 IEnumerable<Project> objProjects = _db.Projects;
                 return View(objProjects);
             }
+            else if (User.IsInRole("Demo"))
+            {
+                IEnumerable<Project> objProjects = _db.Projects.Where(p => p.Demo == true);
+                return View(objProjects);
+            }
             else
             {
                 var user = await _userManager.GetUserAsync(User);
@@ -37,7 +42,7 @@ namespace BugTracker.Controllers
         }
 
         //GET
-        [Authorize(Roles = "Admin,Project Manager")]
+        [Authorize(Roles = "Admin,Project Manager,Demo")]
         public IActionResult Create()
         {
 
@@ -46,7 +51,7 @@ namespace BugTracker.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin,Project Manager")]
+        [Authorize(Roles = "Admin,Project Manager,Demo")]
         public async Task<IActionResult> Create(Project obj)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -54,6 +59,10 @@ namespace BugTracker.Controllers
             obj.AssignedUsers.Add(user);
             if (ModelState.IsValid)
             {
+                if (User.IsInRole("Demo"))
+                {
+                    obj.Demo = true;
+                }
                 _db.Projects.Add(obj);
                 _db.SaveChanges();
                 TempData["success"] = "Project succesfully created";
@@ -64,7 +73,7 @@ namespace BugTracker.Controllers
         }
 
         // GET
-        [Authorize(Roles = "Admin,Project Manager")]
+        [Authorize(Roles = "Admin,Project Manager,Demo")]
         public IActionResult Edit(int? id)
         {
            if(id == null || id == 0)
@@ -86,6 +95,12 @@ namespace BugTracker.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (User.IsInRole("Demo") && !obj.Demo)
+                {
+                    ViewBag.ErrorTitle = "Unable to edit project details.";
+                    ViewBag.ErrorMessage = "You can modify only demo projects !";
+                    return View("Error");
+                }
                 _db.Projects.Update(obj);
                 _db.SaveChanges();
                 TempData["success"] = "Project information updated !";
@@ -130,6 +145,12 @@ namespace BugTracker.Controllers
         {
             var project = _db.Projects.Include(p => p.Tickets).Include(p => p.AssignedUsers).FirstOrDefault( p => p.Id == id);
             var user = await _userManager.GetUserAsync(User);
+            if(User.IsInRole("Demo") && !project.Demo)
+            {
+                ViewBag.ErrorTitle = "Unable to view project details.";
+                ViewBag.ErrorMessage = "You are not a member of this project !";
+                return View("Error");
+            }
             if(project == null) {
                 return NotFound();
             }
@@ -272,12 +293,16 @@ namespace BugTracker.Controllers
                 return NotFound();
             }
             var user = await _userManager.GetUserAsync(User);
+            bool demouser = User.IsInRole("Demo");
             if(!(project.AssignedUsers.Contains(user) && User.IsInRole("Project Manager")) && !User.IsInRole("Admin"))
             {
-                ViewBag.ErrorTitle = "You cannot modify the team of this project.";
-                ViewBag.ErrorMessage = "Please verify you have the necessary privileges to complete this operation \n" +
-                    "NOTE : Only Admins and Project Managers can modify users assigned to the project.";
-                return View("Error");
+                if(!(demouser && project.Demo))
+                {
+                    ViewBag.ErrorTitle = "You cannot modify the team of this project.";
+                    ViewBag.ErrorMessage = "Please verify you have the necessary privileges to complete this operation \n" +
+                        "NOTE : Only Admins and Project Managers can modify users assigned to the project.";
+                    return View("Error");
+                }
             }
             ManageProjectUsersViewModel model = new ManageProjectUsersViewModel
             {
@@ -287,13 +312,16 @@ namespace BugTracker.Controllers
             foreach(var usr in _userManager.Users)
             {
                 var roles = await _userManager.GetRolesAsync(usr);
-                if (project.AssignedUsers.Contains(usr))
+                if( (demouser && roles.Contains("Demo")) || (!demouser && !roles.Contains("Demo")) )
                 {
-                    model.Members.Add(new UserRoles { User = usr, Roles = roles.ToList() });
-                }
-                else
-                {
-                    model.Others.Add(new UserRoles { User = usr, Roles = roles.ToList() });
+                    if (project.AssignedUsers.Contains(usr))
+                    {
+                        model.Members.Add(new UserRoles { User = usr, Roles = roles.ToList() });
+                    }
+                    else
+                    {
+                        model.Others.Add(new UserRoles { User = usr, Roles = roles.ToList() });
+                    }
                 }
             }
             return View(model);
@@ -314,10 +342,17 @@ namespace BugTracker.Controllers
                 return NotFound();
             }
             var user = await _userManager.GetUserAsync(User);
+            bool demouser = User.IsInRole("Demo");
             if(!(project.AssignedUsers.Contains(user) && User.IsInRole("Project Manager")) && !User.IsInRole("Admin"))
             {
-                // generate some error to display
-                return View("Error");
+                if(!(demouser && project.Demo))
+                {
+                    // generate some error to display
+                    ViewBag.ErrorTitle = "You cannot modify the team of this project.";
+                    ViewBag.ErrorMessage = "Please verify you have the necessary privileges to complete this operation \n" +
+                        "NOTE : Only Admins and Project Managers can modify users assigned to the project.";
+                    return View("Error");
+                }
             }
             if(userNames.Length < 1)
             {
@@ -325,8 +360,12 @@ namespace BugTracker.Controllers
             foreach(string uname in userNames)
             {
                 var usr = await _userManager.FindByNameAsync(uname);
-                if (user == null) return NotFound();
-                project.AssignedUsers.Add(usr);
+                if (usr == null) return NotFound();
+                var roles = await _userManager.GetRolesAsync(usr);
+                if ((demouser && roles.Contains("Demo")) || (!demouser && !roles.Contains("Demo")))
+                {
+                    project.AssignedUsers.Add(usr);
+                }
             }
             _db.Projects.Update(project);
             await _db.SaveChangesAsync();
@@ -347,10 +386,17 @@ namespace BugTracker.Controllers
                 return NotFound();
             }
             var user = await _userManager.GetUserAsync(User);
+            bool demouser = User.IsInRole("Demo");
             if(!(project.AssignedUsers.Contains(user) && User.IsInRole("Project Manager")) && !User.IsInRole("Admin"))
             {
-                // generate some error to display
-                return View("Error");
+                if(!(demouser && project.Demo))
+                {
+                    // generate some error to display
+                    ViewBag.ErrorTitle = "You cannot modify the team of this project.";
+                    ViewBag.ErrorMessage = "Please verify you have the necessary privileges to complete this operation \n" +
+                        "NOTE : Only Admins and Project Managers can modify users assigned to the project.";
+                    return View("Error");
+                }
             }
             if(userNames.Length < 1)
             {
@@ -358,8 +404,12 @@ namespace BugTracker.Controllers
             foreach(string uname in userNames)
             {
                 var usr = await _userManager.FindByNameAsync(uname);
-                if (user == null) return NotFound();
-                project.AssignedUsers.Remove(usr);
+                if (usr == null) return NotFound();
+                var roles = await _userManager.GetRolesAsync(usr);
+                if ((demouser && roles.Contains("Demo")) || (!demouser && !roles.Contains("Demo")))
+                {
+                    project.AssignedUsers.Remove(usr);
+                }
             }
             _db.Projects.Update(project);
             await _db.SaveChangesAsync();

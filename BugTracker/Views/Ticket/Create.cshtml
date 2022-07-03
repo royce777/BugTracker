@@ -42,11 +42,11 @@
             }
         </div>
         <div class="form-floating mb-3">
-            @Html.DropDownListFor(t => t.SubmitterId, new SelectList((IEnumerable<ApplicationUser>)ViewData["Users"],"Id", "FirstName"),"  ",new { @class="form-select"})
+            @Html.DropDownListFor(t => t.SubmitterId, new SelectList((IEnumerable<ApplicationUser>)ViewData["Users"],"Id", "UserName"),"  ",new { @class="form-select"})
             <label class="form-label" asp-for="Submitter"></label>
         </div>
         <div class="form-floating mb-3">
-            @Html.DropDownListFor(t => t.DeveloperId,  new SelectList((IEnumerable<ApplicationUser>)ViewData["Users"],"Id", "FirstName"), "  ",new { @class="form-select"})
+            @Html.DropDownListFor(t => t.DeveloperId,  new SelectList((IEnumerable<ApplicationUser>)ViewData["Users"],"Id", "UserName"), "  ",new { @class="form-select"})
             <label class="form-label" asp-for="Developer"></label>
         </div>
         <div class="form-floating mb-3">

@@ -82,7 +82,7 @@
           <div class="card-header">
               <div class="row">
                 <h4 class="col">Staff</h4>
-                    @if(User.IsInRole("Admin") || User.IsInRole("Project Manager"))
+                    @if(User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Demo"))
                     {
                         <div class="col text-end">
                             <a asp-controller="Project" asp-action="ManageProjectUsers" asp-route-id="@Model.Id" class="col btn btn-primary">Manage</a>

@@ -14,6 +14,7 @@ public class Project
     public DateTime Date { get; set; } = DateTime.Now;
     public ICollection<Ticket>? Tickets { get; set; }
     public ICollection<ApplicationUser>? AssignedUsers { get; set; }
+    public bool Demo { get; set; } = false;
 
 
 }
