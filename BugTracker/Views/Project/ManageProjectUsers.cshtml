@@ -1,12 +1,20 @@
 ﻿@model ManageProjectUsersViewModel
-
+@using BugTracker.Areas.Identity.Data
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
 @{
     ViewData["Title"] = "Manage project users";
+    string username = UserManager.GetUserName(User);
 }
 
 <div class="card shadow-lg border-primary mb-3 mt-3" >
-  <div class="card-header bg-primary text-white">
-      <h4>Manage Project Users</h4>
+  <div class="card-header bg-primary text-white ">
+      <div class="row">
+          <h4 class="col">Manage Project Users</h4>
+          <div class="col text-end">
+              <a asp-controller="Project" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-dark">Back</a>
+          </div>
+      </div>
   </div>
   <div class="card-body">
     <div class="row">
@@ -125,7 +133,13 @@
             });
 
             $('table.users tbody').on('click', 'tr', function () {
-                $(this).toggleClass('table-warning');
+                console.log($(this));
+                if ($(this).find('td:eq(2)').text() !== '@username') {
+                    $(this).toggleClass('table-warning');
+                }
+                else {
+                    toastr.warning('You cannot select yourself to be removed from this project !', 'User Remove Warning', { timeOut: 1000 });
+                }
             });
             $('table.others tbody').on('click', 'tr', function () {
                 $(this).toggleClass('table-success');
@@ -140,6 +154,10 @@
                 var d = this.data();
                 unames.push(d[2]);
             });
+            if (unames.length === 0) {
+                toastr.error('First select users from the table !', 'Error', { timeOut: 1000 });
+                return;
+            }
             var url = "/Project/AddUsers";
             $.ajax({
                 type: "POST",
@@ -169,6 +187,10 @@
                 var d = this.data();
                 unames.push(d[2]);
             });
+            if (unames.length === 0) {
+                toastr.error('First select users from the table !', 'Error', { timeOut: 1000 });
+                return;
+            }
             var url = "/Project/RemoveUsers";
             $.ajax({
                 type: "POST",
