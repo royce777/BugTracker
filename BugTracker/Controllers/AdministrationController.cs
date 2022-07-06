@@ -66,7 +66,7 @@ namespace BugTracker.Controllers
                 Id = role.Id,
                 RoleName = role.Name
             };
-            foreach(var user in _userManager.Users)
+            foreach(var user in _userManager.Users.ToList())
             {
                 if(await _userManager.IsInRoleAsync(user, role.Name))
                 {
@@ -169,7 +169,7 @@ namespace BugTracker.Controllers
             ViewBag.userId = id;
             ViewBag.userName = user.UserName; 
             var model = new List<UserRolesViewModel>();
-            foreach(var role in _roleManager.Roles)
+            foreach(var role in _roleManager.Roles.ToList())
             {
                 var roleModel = new UserRolesViewModel()
                 {

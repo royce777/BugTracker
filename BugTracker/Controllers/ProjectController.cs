@@ -90,7 +90,7 @@ namespace BugTracker.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin,Project Manager")]
+        [Authorize(Roles = "Admin,Project Manager,Demo")]
         public IActionResult Edit(Project obj)
         {
             if (ModelState.IsValid)
@@ -309,7 +309,7 @@ namespace BugTracker.Controllers
                 Id = project.Id,
                 ProjectName = project.Title
             };
-            foreach(var usr in _userManager.Users)
+            foreach(var usr in _userManager.Users.ToList())
             {
                 var roles = await _userManager.GetRolesAsync(usr);
                 if( (demouser && roles.Contains("Demo")) || (!demouser && !roles.Contains("Demo")) )
