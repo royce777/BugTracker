@@ -19,7 +19,7 @@
                             <h5 class="pt-2">@Model.Title</h5>
                           </div>
                             <div class="col text-end">
-                            @if(User.IsInRole("Admin") || User.IsInRole("Project Manager"))
+                            @if(User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Demo"))
                             {
                                 <a asp-controller="Ticket" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">
                                      <i class="bi bi-pen"></i> &nbsp; Edit Ticket 

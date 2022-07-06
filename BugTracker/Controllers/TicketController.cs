@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace BugTracker.Controllers
 {
@@ -127,22 +128,22 @@ namespace BugTracker.Controllers
                 ViewBag.ErrorMessage = "You don't have the privileges to access this resource !";
                 return View("Error");
             }
-            if(User.IsInRole("Developer") && ticket.Status == TicketStatus.Pending)
+            if( (User.IsInRole("Developer") || User.IsInRole("Demo")) && ticket.Status == TicketStatus.Pending)
             {
                 ViewBag.ActionButton = "Start";
             }
-            else if(User.IsInRole("Developer") && ticket.Status == TicketStatus.In_Progress)
+            else if( (User.IsInRole("Developer") || User.IsInRole("Demo")) && ticket.Status == TicketStatus.In_Progress)
             {
                 ViewBag.ActionButton = "Finish";
             }
-            else if(User.IsInRole("Project Manager") && ticket.Status == TicketStatus.Finished)
+            else if( (User.IsInRole("Project Manager") || User.IsInRole("Demo")) && ticket.Status == TicketStatus.Finished)
             {
                 ViewBag.ActionButton = "Close";
             }
             return View(ticket);    
         }
         
-        [Authorize(Roles = "Admin,Project Manager")]
+        [Authorize(Roles = "Admin,Project Manager,Demo")]
         public async Task<IActionResult> Edit(int? id)
         {
             if(id==null || id == 0)
@@ -174,9 +175,21 @@ namespace BugTracker.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin,Project Manager")]
-        public IActionResult Edit(Ticket obj)
+        [Authorize(Roles = "Admin,Project Manager,Demo")]
+        public async Task<IActionResult> Edit(Ticket obj)
         {
+            var user = await _userManager.GetUserAsync(User);
+            var project = await _db.Projects.Include(p => p.AssignedUsers).FirstOrDefaultAsync(p => p.Id == obj.ProjectId);
+            if(project == null)
+            {
+                return NotFound();
+            }
+            if (!project.AssignedUsers.Contains(user))
+            {
+                ViewBag.ErrorTitle = "Ticket " + obj.Title + " cannot be edited.";
+                ViewBag.ErrorMessage = "You have no privileges to complete this operation.";
+                return View("Error");
+            }
             if (ModelState.IsValid)
             {
                 _db.Tickets.Update(obj);
@@ -229,7 +242,7 @@ namespace BugTracker.Controllers
             switch (action)
             {
                 case "Start":
-                    if (User.IsInRole("Developer") && ticket.Status== TicketStatus.Pending)
+                    if ( (User.IsInRole("Developer") || User.IsInRole("Demo")) && ticket.Status== TicketStatus.Pending)
                     {
                         ticket.Status = TicketStatus.In_Progress;
                         _db.Tickets.Update(ticket);
@@ -240,13 +253,13 @@ namespace BugTracker.Controllers
                     }
                     break;
                 case "Finish":
-                    if(User.IsInRole("Developer") && ticket.Status == TicketStatus.In_Progress)
+                    if( (User.IsInRole("Developer") || User.IsInRole("Demo")) && ticket.Status == TicketStatus.In_Progress)
                     {
                         ticket.Status = TicketStatus.Finished;
                         _db.Tickets.Update(ticket);
                         await _db.SaveChangesAsync();
                         newStatus = "Finished";
-                        if(User.IsInRole("Project Manager") || User.IsInRole("Architect"))
+                        if(User.IsInRole("Project Manager") || User.IsInRole("Architect")|| User.IsInRole("Demo"))
                         {
                             newAction = "Close";
                         }
@@ -258,7 +271,7 @@ namespace BugTracker.Controllers
                     }
                     break;
                 case "Close":
-                    if((User.IsInRole("Architect") || User.IsInRole("Project Manager")) && ticket.Status == TicketStatus.Finished)
+                    if((User.IsInRole("Architect") || User.IsInRole("Project Manager")|| User.IsInRole("Demo")) && ticket.Status == TicketStatus.Finished)
                     {
                         ticket.Status = TicketStatus.Closed;
                         _db.Tickets.Update(ticket);
