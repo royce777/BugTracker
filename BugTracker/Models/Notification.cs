@@ -8,6 +8,5 @@ namespace BugTracker.Models
         public string Text { get; set; }
         public string RefLink { get; set; }
         public List<ApplicationUser> Users { get; set; }
-
     }
 }

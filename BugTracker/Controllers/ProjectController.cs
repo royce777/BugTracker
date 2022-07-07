@@ -1,5 +1,6 @@
 ﻿using BugTracker.Areas.Identity.Data;
 using BugTracker.Data;
+using BugTracker.Helpers;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -14,11 +15,13 @@ namespace BugTracker.Controllers
     {
         private readonly ApplicationDbContext _db;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly INotificationHelper _notificationHelper;
 
-        public ProjectController(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
+        public ProjectController(ApplicationDbContext db, UserManager<ApplicationUser> userManager, INotificationHelper notificationHelper)
         {
             _db = db;
             _userManager = userManager;
+            _notificationHelper = notificationHelper;
         }
 
         public async Task<IActionResult> Index()
@@ -369,6 +372,14 @@ namespace BugTracker.Controllers
             }
             _db.Projects.Update(project);
             await _db.SaveChangesAsync();
+            //create notification
+            var notification = new Notification
+            {
+                Text = $"{project.Title} staff has changed !",
+                RefLink = $"/Project/Details/{project.Id}"
+            };
+            _notificationHelper.Create(notification, projectId);
+            
             return RedirectToAction("ManageProjectUsers", new { id = project.Id });
 
         }
