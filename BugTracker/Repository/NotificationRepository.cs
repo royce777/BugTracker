@@ -2,12 +2,12 @@
 using BugTracker.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BugTracker.Helpers
+namespace BugTracker.Repository
 {
-    public class NotificationHelper : INotificationHelper
+    public class NotificationRepository : INotificationRepository
     {
         private readonly ApplicationDbContext _db;
-        public NotificationHelper(ApplicationDbContext db)
+        public NotificationRepository(ApplicationDbContext db)
         {
             _db = db;
         }

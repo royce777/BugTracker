@@ -126,5 +126,11 @@
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <script> 
+            getNotifications();
+        </script>
+    }
 </body>
 </html>
