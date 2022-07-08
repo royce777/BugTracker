@@ -53,3 +53,8 @@ body {
     align-items: center;
     border-radius: 50%;
 }
+
+.popover{
+    width: 500px;
+    cursor: pointer;
+}
