@@ -21,6 +21,7 @@ $(function () {
             method: "GET",
             success: function (result) {
                 if (result.count != 0) {
+                    $('#notificationButton').append('<span class="icon-button__badge "></span>');
                     $(".icon-button__badge").html(result.count);
                 }
                 else {
