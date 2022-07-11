@@ -1,24 +1,25 @@
-﻿using BugTracker.Data;
-using BugTracker.Models;
+﻿using BugTracker.Models;
+using BugTracker.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.Controllers
 {
+    [Authorize]
     public class AttachmentController : Controller
     {
-        // TODO : security considerations on file upload
-        private readonly ApplicationDbContext _db;
+        // TODO : security considerations 
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AttachmentController(ApplicationDbContext db)
+        public AttachmentController(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
         }
         public IActionResult Index(int ticketId)
         {
             var att = new AttachmentViewModel()
             {
-                AttachmentList = _db.Attachments.Include(c => c.Author).Where(c => c.TicketId == ticketId).ToList(),
+                AttachmentList = (List<Attachment>)_unitOfWork.Attachments.GetForTicket(ticketId),
                 Attachment = new Attachment
                 {
                     TicketId = ticketId
@@ -32,7 +33,6 @@ namespace BugTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AttachmentViewModel attachmentData)
         {
-            // TODO : Add validation for empty description !
             Attachment att = attachmentData.Attachment;
             using (var memoryStream = new MemoryStream())
             {
@@ -43,17 +43,16 @@ namespace BugTracker.Controllers
                     att.File = memoryStream.ToArray();
                     att.FileName = attachmentData.FormFile.FileName;
                     att.MimeType = attachmentData.FormFile.ContentType;
-                    _db.Attachments.Add(att);
-                    _db.SaveChanges();
+                    _unitOfWork.Attachments.Add(att);
+                    await _unitOfWork.Complete();
                 }
           
             }
-            // return Redirect(Request.Headers["Referer"].ToString());
             return RedirectToAction("Index",new { ticketId = att.TicketId });
         }
         public IActionResult Download(int id)
         {
-            var attachment = _db.Attachments.First(att => att.Id == id);
+            var attachment = _unitOfWork.Attachments.GetById(id);
             if(attachment != null)
             {
                 return File(attachment.File, attachment.MimeType);
@@ -61,13 +60,13 @@ namespace BugTracker.Controllers
             return NotFound();
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var attachmentToDelete = _db.Attachments.First(c => c.Id == id);
+            var attachmentToDelete = _unitOfWork.Attachments.GetById(id);
             if(attachmentToDelete!= null)
             {
-                _db.Attachments.Remove(attachmentToDelete);
-                _db.SaveChanges();
+                _unitOfWork.Attachments.Remove(attachmentToDelete);
+                await _unitOfWork.Complete();
             }
             return RedirectToAction("Index");
         }

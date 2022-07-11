@@ -22,7 +22,7 @@ namespace BugTracker.Repository
         {
             return _db.Set<T>().Where(expression);
         }
-        public IEnumerable<T> GetAll()
+        public virtual IEnumerable<T> GetAll()
         {
             return _db.Set<T>().ToList();
         }
@@ -37,6 +37,10 @@ namespace BugTracker.Repository
         public void RemoveRange(IEnumerable<T> entities)
         {
             _db.Set<T>().RemoveRange(entities);
+        }
+        public void Update(T entity)
+        {
+            _db.Set<T>().Update(entity);
         }
     }
 }

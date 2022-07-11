@@ -2,23 +2,22 @@
 using Microsoft.AspNetCore.Mvc;
 using BugTracker.Data;
 using Microsoft.EntityFrameworkCore;
+using BugTracker.UnitOfWork;
 
 namespace BugTracker.Controllers
 {
     public class CommentController : Controller
     {
-
-        private readonly ApplicationDbContext _db;
-
-        public CommentController(ApplicationDbContext db)
+        private readonly IUnitOfWork _unitOfWork;
+        public CommentController(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
         }
         public IActionResult Index(int ticketId)
         {
             var comments = new CommentViewModel()
             {
-                CommentList = _db.Comments.Include(c => c.Author).Where(c => c.TicketId == ticketId).ToList(),
+                CommentList = (List<Comment>)_unitOfWork.Comments.GetForTicket(ticketId),
                 Comment = new Comment
                 {
                     TicketId = ticketId
@@ -30,26 +29,26 @@ namespace BugTracker.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CommentViewModel commentData)
+        public async Task<IActionResult> Create(CommentViewModel commentData)
         {
             //TODO: Add client side validation for empty comment (now it's server side)!
             Comment com = commentData.Comment;
             if (ModelState.IsValid)
             {
-                _db.Comments.Add(com);
-                _db.SaveChanges();
+                _unitOfWork.Comments.Add(com);
+                await _unitOfWork.Complete();
             }
             // return Redirect(Request.Headers["Referer"].ToString());
             return RedirectToAction("Index",new { ticketId = com.TicketId });
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var commentToDelete = _db.Comments.First(c => c.Id == id);
+            var commentToDelete = _unitOfWork.Comments.GetById(id);
             if(commentToDelete != null)
             {
-                _db.Comments.Remove(commentToDelete);
-                _db.SaveChanges();
+                _unitOfWork.Comments.Remove(commentToDelete);
+                await _unitOfWork.Complete();
             }
             return RedirectToAction("Index");
         }

@@ -1,6 +1,7 @@
 ﻿using BugTracker.Areas.Identity.Data;
 using BugTracker.Data;
 using BugTracker.Models;
+using BugTracker.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +13,12 @@ namespace BugTracker.Controllers
     [Authorize]
     public class TicketController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public TicketController(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
+        public TicketController(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
             _userManager = userManager;
         }   
 
@@ -25,13 +26,13 @@ namespace BugTracker.Controllers
         {
             if (User.IsInRole("Admin"))
             {
-                IEnumerable<Ticket> tickets = _db.Tickets.Include(ticket => ticket.Project);
+                IEnumerable<Ticket> tickets = _unitOfWork.Tickets.GetAll();
                 return View(tickets);
             }
             else
             {
                 var user = await _userManager.GetUserAsync(User);
-                IEnumerable<Ticket> tickets = _db.Tickets.Include(ticket => ticket.Project).Where(ticket => ticket.Project.AssignedUsers.Contains(user));
+                IEnumerable<Ticket> tickets = _unitOfWork.Tickets.GetForUser(user);
                 return View(tickets);
             }
         }
@@ -39,8 +40,8 @@ namespace BugTracker.Controllers
         public IActionResult Create()
         {
             //retrieve projects from DB
-            var projects = _db.Projects.ToList();
-            var users = _db.Users.ToList();
+            var projects = _unitOfWork.Projects.GetAll();
+            var users = _unitOfWork.Users.GetAll();
             ViewData["ProjectsList"] = projects;
             ViewData["Users"] = users;
             return View();
@@ -48,7 +49,7 @@ namespace BugTracker.Controllers
         public async Task<IActionResult> CreateFromProject(int projectId)
         {
             // check is the user is in this project
-            var project = await _db.Projects.Include(p => p.AssignedUsers).FirstOrDefaultAsync(p => p.Id == projectId);
+            var project = await _unitOfWork.Projects.GetWithUsers(projectId);
             if(project == null)
             {
                 return NotFound();
@@ -62,44 +63,44 @@ namespace BugTracker.Controllers
             }
             ViewBag.DisableProject = true;
             ViewBag.ProjectName = project.Title;
-            var projects = _db.Projects.ToList();
-            List<ApplicationUser> users = new List<ApplicationUser>();
+            var projects = _unitOfWork.Projects.GetAll();
+            List<ApplicationUser> compatibleUsers = new List<ApplicationUser>();
+            List<ApplicationUser> allUsers = (List<ApplicationUser>)_unitOfWork.Users.GetAll();
             if (project.Demo)
             {
-                foreach(var usr in _db.Users.ToList())
+                foreach(var usr in allUsers)
                 {
                     if ( await _userManager.IsInRoleAsync(usr, "Demo"))
                     {
-                        users.Add(usr);
+                        compatibleUsers.Add(usr);
                     }
                 }
             }
             else
             {
-                foreach(var usr in _db.Users.ToList())
+                foreach(var usr in allUsers)
                 {
                     if(! await _userManager.IsInRoleAsync(usr, "Demo"))
                     {
-                        users.Add(usr);
+                        compatibleUsers.Add(usr);
                     }
                 }
             }
-            _db.Users.ToList();
             ViewData["ProjectsList"] = projects;
-            ViewData["Users"] = users;
+            ViewData["Users"] = compatibleUsers;
             return View("Create");
 
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Ticket obj)
+        public async Task<IActionResult> Create(Ticket obj)
         {
 
             if (ModelState.IsValid)
             {
-                _db.Tickets.Add(obj);
-                _db.SaveChanges();
+                _unitOfWork.Tickets.Add(obj);
+                await _unitOfWork.Complete();
                 //return Redirect(Request.Headers["Referer"].ToString()); 
                 TempData["success"] = "Ticket successfully created ! ";
                 if (Request.Headers["Referer"].ToString().Contains("CreateFromProject"))
@@ -112,10 +113,10 @@ namespace BugTracker.Controllers
             return View(obj);
         }
 
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
             var user = await _userManager.GetUserAsync(User);
-            var ticket = await _db.Tickets.Include(t=> t.Project.AssignedUsers).Include(t => t.Submitter).Include(t=> t.Developer).FirstOrDefaultAsync(t => t.Id == id);
+            var ticket = await _unitOfWork.Tickets.GetDetails(id);
             if (ticket == null)
             {
                 return NotFound();
@@ -144,13 +145,13 @@ namespace BugTracker.Controllers
         }
         
         [Authorize(Roles = "Admin,Project Manager,Demo")]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if(id==null || id == 0)
+            if(id == 0)
             {
                 return NotFound();
             }
-            var ticket = await _db.Tickets.Include(t => t.Project.AssignedUsers).FirstOrDefaultAsync(t=> t.Id == id);
+            var ticket = await _unitOfWork.Tickets.GetWithUsers(id);
             var user = await _userManager.GetUserAsync(User);
             if (ticket == null)
             {
@@ -166,8 +167,8 @@ namespace BugTracker.Controllers
             {
                 ViewBag.Admin = true;
             }
-            var projects = _db.Projects.ToList();
-            var users = _db.Users.ToList();
+            var projects = _unitOfWork.Projects.GetAll();
+            var users = _unitOfWork.Users.GetAll();
             ViewData["ProjectsList"] = projects;
             ViewData["Users"] = users;
             return View(ticket);
@@ -179,7 +180,7 @@ namespace BugTracker.Controllers
         public async Task<IActionResult> Edit(Ticket obj)
         {
             var user = await _userManager.GetUserAsync(User);
-            var project = await _db.Projects.Include(p => p.AssignedUsers).FirstOrDefaultAsync(p => p.Id == obj.ProjectId);
+            var project = await _unitOfWork.Projects.GetWithUsers(obj.ProjectId);
             if(project == null)
             {
                 return NotFound();
@@ -192,27 +193,27 @@ namespace BugTracker.Controllers
             }
             if (ModelState.IsValid)
             {
-                _db.Tickets.Update(obj);
-                _db.SaveChanges();
+                _unitOfWork.Tickets.Update(obj);
+                await _unitOfWork.Complete();
                 TempData["success"] = "Ticket successfully updated !";
                 return RedirectToAction("Details", new {id = obj.Id});
             }
             TempData["error"] = "Unable to edit ticket, check information and try again !";
             return View(obj);
         }
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if(id==null || id == 0)
+            if(id == 0)
             {
                 return NotFound();
             }
-            var ticket = _db.Tickets.Find(id);
+            var ticket = _unitOfWork.Tickets.GetById(id);
             if(ticket == null)
             {
                 return NotFound();
             }
-            _db.Tickets.Remove(ticket);
-            _db.SaveChanges();
+            _unitOfWork.Tickets.Remove(ticket);
+            await _unitOfWork.Complete();
             TempData["success"] = "Ticket successfully deleted !";
             return Redirect(Request.Headers["Referer"].ToString()); 
         }
@@ -224,7 +225,7 @@ namespace BugTracker.Controllers
             {
                 return NotFound();
             }
-            var ticket = await _db.Tickets.Include(t => t.Project.AssignedUsers).FirstOrDefaultAsync( t => t.Id == ticketId);
+            var ticket = await _unitOfWork.Tickets.GetWithUsers(ticketId);
             if(ticket == null)
             {
                 return NotFound();
@@ -245,8 +246,8 @@ namespace BugTracker.Controllers
                     if ( (User.IsInRole("Developer") || User.IsInRole("Demo")) && ticket.Status== TicketStatus.Pending)
                     {
                         ticket.Status = TicketStatus.In_Progress;
-                        _db.Tickets.Update(ticket);
-                        await _db.SaveChangesAsync();
+                        _unitOfWork.Tickets.Update(ticket);
+                        await _unitOfWork.Complete();
                         newStatus = "In Progress";
                         newAction = "Finish";
                         success = true;
@@ -256,8 +257,8 @@ namespace BugTracker.Controllers
                     if( (User.IsInRole("Developer") || User.IsInRole("Demo")) && ticket.Status == TicketStatus.In_Progress)
                     {
                         ticket.Status = TicketStatus.Finished;
-                        _db.Tickets.Update(ticket);
-                        await _db.SaveChangesAsync();
+                        _unitOfWork.Tickets.Update(ticket);
+                        await _unitOfWork.Complete();
                         newStatus = "Finished";
                         if(User.IsInRole("Project Manager") || User.IsInRole("Architect")|| User.IsInRole("Demo"))
                         {
@@ -274,8 +275,8 @@ namespace BugTracker.Controllers
                     if((User.IsInRole("Architect") || User.IsInRole("Project Manager")|| User.IsInRole("Demo")) && ticket.Status == TicketStatus.Finished)
                     {
                         ticket.Status = TicketStatus.Closed;
-                        _db.Tickets.Update(ticket);
-                        await _db.SaveChangesAsync();
+                        _unitOfWork.Tickets.Update(ticket);
+                        await _unitOfWork.Complete();
                         newStatus = "Closed";
                         success = true;
                     }

@@ -11,14 +11,14 @@ namespace BugTracker.Repository
         {
         }
 
-        public async Task<Project?> GetDetails(int projectId)
+        public Task<Project?> GetDetails(int projectId)
         {
-            return await _db.Projects.Include(p => p.AssignedUsers).Include(p => p.Tickets).FirstOrDefaultAsync(p => p.Id == projectId);
+            return _db.Projects.Include(p => p.AssignedUsers).Include(p => p.Tickets).FirstOrDefaultAsync(p => p.Id == projectId);
         }
 
-        public async Task<Project?> GetWithUsers(int projectId)
+        public Task<Project?> GetWithUsers(int projectId)
         {
-            return await _db.Projects.Include(p => p.AssignedUsers).FirstOrDefaultAsync(p => p.Id == projectId);
+            return _db.Projects.Include(p => p.AssignedUsers).FirstOrDefaultAsync(p => p.Id == projectId);
         }
 
         public Task<bool> HasPermission(Project project, string action)

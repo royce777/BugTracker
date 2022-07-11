@@ -7,39 +7,38 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using BugTracker.UnitOfWork;
 
 namespace BugTracker.Controllers
 {
     [Authorize]
     public class ProjectController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly INotificationRepository _notificationRepository;
 
-        public ProjectController(ApplicationDbContext db, UserManager<ApplicationUser> userManager, INotificationRepository notificationRepository)
+        public ProjectController(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
             _userManager = userManager;
-            _notificationRepository = notificationRepository;
         }
 
         public async Task<IActionResult> Index()
         {
             if (User.IsInRole("Admin"))
             {
-                IEnumerable<Project> objProjects = _db.Projects;
+                IEnumerable<Project> objProjects = _unitOfWork.Projects.GetAll();
                 return View(objProjects);
             }
             else if (User.IsInRole("Demo"))
             {
-                IEnumerable<Project> objProjects = _db.Projects.Where(p => p.Demo == true);
+                IEnumerable<Project> objProjects = _unitOfWork.Projects.Find(p => p.Demo == true);
                 return View(objProjects);
             }
             else
             {
                 var user = await _userManager.GetUserAsync(User);
-                IEnumerable<Project> objProjects = _db.Projects.Where(p => p.AssignedUsers.Contains(user));
+                IEnumerable<Project> objProjects = _unitOfWork.Projects.Find(p=> p.AssignedUsers.Contains(user)); 
                 return View(objProjects);
             }
         }
@@ -66,8 +65,8 @@ namespace BugTracker.Controllers
                 {
                     obj.Demo = true;
                 }
-                _db.Projects.Add(obj);
-                _db.SaveChanges();
+                _unitOfWork.Projects.Add(obj);
+                await _unitOfWork.Complete();
                 TempData["success"] = "Project succesfully created";
                 return RedirectToAction("Index");
             }
@@ -77,13 +76,13 @@ namespace BugTracker.Controllers
 
         // GET
         [Authorize(Roles = "Admin,Project Manager,Demo")]
-        public IActionResult Edit(int? id)
+        public IActionResult Edit(int id)
         {
-           if(id == null || id == 0)
+           if(id == 0)
             {
                 return NotFound();
             }
-            var project = _db.Projects.Find(id);
+            var project = _unitOfWork.Projects.GetById(id);
             if (project == null)
             {
                 return NotFound();
@@ -94,7 +93,7 @@ namespace BugTracker.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,Project Manager,Demo")]
-        public IActionResult Edit(Project obj)
+        public async Task<IActionResult> Edit(Project obj)
         {
             if (ModelState.IsValid)
             {
@@ -104,8 +103,8 @@ namespace BugTracker.Controllers
                     ViewBag.ErrorMessage = "You can modify only demo projects !";
                     return View("Error");
                 }
-                _db.Projects.Update(obj);
-                _db.SaveChanges();
+                _unitOfWork.Projects.Update(obj);
+                await _unitOfWork.Complete();
                 TempData["success"] = "Project information updated !";
                 return RedirectToAction("Index");
             }
@@ -114,13 +113,13 @@ namespace BugTracker.Controllers
         }
 
         [Authorize(Roles = "Admin,Project Manager")]
-        public IActionResult Delete(int? id)
+        public IActionResult Delete(int id)
         {
-           if(id == null || id == 0)
+           if(id == 0)
             {
                 return NotFound();
             }
-            var project = _db.Projects.Find(id);
+            var project = _unitOfWork.Projects.GetById(id);
             if (project == null)
             {
                 return NotFound();
@@ -131,22 +130,22 @@ namespace BugTracker.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,Project Manager")]
-        public IActionResult DeletePOST(int? id)
+        public async Task<IActionResult> DeletePOST(int id)
         {
-            var project = _db.Projects.Find(id);
+            var project = _unitOfWork.Projects.GetById(id);
             if(project == null)
             {
                 return NotFound();
             }
-            _db.Projects.Remove(project);
-            _db.SaveChanges();
+            _unitOfWork.Projects.Remove(project);
+            await _unitOfWork.Complete();
             TempData["success"] = "Project successfully deleted !";
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            var project = _db.Projects.Include(p => p.Tickets).Include(p => p.AssignedUsers).FirstOrDefault( p => p.Id == id);
+            var project = await _unitOfWork.Projects.GetDetails(id);
             var user = await _userManager.GetUserAsync(User);
             if(User.IsInRole("Demo") && !project.Demo)
             {
@@ -284,13 +283,13 @@ namespace BugTracker.Controllers
             return View(project);
         }
 
-        public async Task<IActionResult> ManageProjectUsers(int? id)
+        public async Task<IActionResult> ManageProjectUsers(int id)
         {
-            if(id == null || id == 0)
+            if(id == 0)
             {
                 return NotFound();
             }
-            var project = await _db.Projects.Include(p => p.AssignedUsers).FirstOrDefaultAsync(p => p.Id == id);
+            var project = await _unitOfWork.Projects.GetWithUsers(id);
             if(project == null)
             {
                 return NotFound();
@@ -339,7 +338,7 @@ namespace BugTracker.Controllers
             {
                 return NotFound();
             }
-            var project = await _db.Projects.Include(p => p.AssignedUsers).FirstOrDefaultAsync(p => p.Id == projectId);
+            var project = await _unitOfWork.Projects.GetWithUsers(projectId);
             if(project == null)
             {
                 return NotFound();
@@ -370,15 +369,15 @@ namespace BugTracker.Controllers
                     project.AssignedUsers.Add(usr);
                 }
             }
-            _db.Projects.Update(project);
-            await _db.SaveChangesAsync();
+            _unitOfWork.Projects.Update(project);
+            await _unitOfWork.Complete();
             //create notification
             var notification = new Notification
             {
                 Text = $"{project.Title} staff has changed !",
                 RefLink = $"/Project/Details/{project.Id}"
             };
-            _notificationRepository.Create(notification, projectId);
+            _unitOfWork.Notifications.Create(notification, projectId);
             
             return RedirectToAction("ManageProjectUsers", new { id = project.Id });
 
@@ -391,7 +390,7 @@ namespace BugTracker.Controllers
             {
                 return NotFound();
             }
-            var project = await _db.Projects.Include(p => p.AssignedUsers).FirstOrDefaultAsync(p => p.Id == projectId);
+            var project = await _unitOfWork.Projects.GetWithUsers(projectId);
             if(project == null)
             {
                 return NotFound();
@@ -422,8 +421,8 @@ namespace BugTracker.Controllers
                     project.AssignedUsers.Remove(usr);
                 }
             }
-            _db.Projects.Update(project);
-            await _db.SaveChangesAsync();
+            _unitOfWork.Projects.Update(project);
+            await _unitOfWork.Complete();
             return RedirectToAction("ManageProjectUsers", new { id = project.Id });
 
         }
