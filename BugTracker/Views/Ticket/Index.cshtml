@@ -62,7 +62,8 @@
                                     @if (User.IsInRole("Admin"))
                                     {
                                         <a asp-controller="Ticket" asp-action="Edit" asp-route-id="@ticket.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
-                                        <a asp-controller="Ticket" asp-action="Delete" asp-route-id="@ticket.Id" class="btn btn-warning"><i class="bi bi-trash-fill"></i></a>
+                                        <a class="btn btn-danger delete" data-item-name="Ticket" data-id="@ticket.Id" data-controller="Ticket" data-action="Delete"
+                                                data-body-message="Are you sure you want to delete ticket : @ticket.Title ?"><i class="bi bi-trash-fill"></i></a>
                                     }
                                 </div>
                             </td>
@@ -100,7 +101,8 @@
                                         @if (User.IsInRole("Admin"))
                                         {
                                             <a asp-controller="Ticket" asp-action="Edit" asp-route-id="@ticket.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
-                                            <a asp-controller="Ticket" asp-action="Delete" asp-route-id="@ticket.Id" class="btn btn-warning"><i class="bi bi-trash-fill"></i></a>
+                                            <a class="btn btn-danger delete" data-item-name="Ticket" data-id="@ticket.Id" data-controller="Ticket" data-action="Delete"
+                                                data-body-message="Are you sure you want to delete ticket : @ticket.Title ?"><i class="bi bi-trash-fill"></i></a>
                                         }
                                     </div>
                                 </td>
@@ -116,16 +118,20 @@
 </div>
 
 @section Scripts{
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
-        $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-            $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
-        });
-        $('table.all').DataTable({
-            responsive: true,
-        });
-        $('table.assigned').DataTable({
-            responsive: true,
-        });
+        $(function() {
+            $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+                $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+            });
+            $('table.all').DataTable({
+                responsive: true,
+            });
+            $('table.assigned').DataTable({
+                responsive: true,
+            });
+
+        })
 
     </script>
 }

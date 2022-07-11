@@ -64,8 +64,9 @@
                                     @if(User.IsInRole("Admin") || User.IsInRole("Project Manager") || User.IsInRole("Demo"))
                                     {
                                         <a asp-controller="Ticket" asp-action="Edit" asp-route-id="@ticket.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
-                                        <a asp-controller="Ticket" asp-action="Delete" asp-route-id="@ticket.Id" class="btn btn-warning"><i class="bi bi-trash-fill"></i></a>
-                                        
+                                        //<a asp-controller="Ticket" asp-action="Delete" asp-route-id="@ticket.Id" class="btn btn-warning"><i class="bi bi-trash-fill"></i></a>
+                                        <a class="btn btn-danger delete" data-item-name="Ticket" data-id="@ticket.Id" data-controller="Ticket" data-action="Delete"
+                                                data-body-message="Are you sure you want to delete ticket : @ticket.Title ?"><i class="bi bi-trash-fill"></i></a>
                                     }
                                 </div>
                             </td>

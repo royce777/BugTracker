@@ -47,7 +47,8 @@
                         <td>
                             <div class="btn-group" role="group">
                                 <a asp-controller="Administration" asp-action="ManageRole" asp-route-id="@role.Id" class="btn btn-info"><i class="bi bi-pencil-square"></i></a>
-                                <a asp-controller="Administration" asp-action="DeleteRole" asp-route-id="@role.Id" class="btn btn-warning"><i class="bi bi-trash-fill"> </i></a>
+                                <a class="btn btn-danger delete" data-item-name="Role" data-id="@role.Id" data-controller="Administration" data-action="DeleteRole"
+                                                data-body-message="Are you sure you want to delete role: @role.Name ?"><i class="bi bi-trash-fill"></i></a>
                             </div>
                         </td>
                     </tr>
@@ -56,3 +57,8 @@
     </table>
   </div>
 </div>
+
+
+@section Scripts{
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+}
