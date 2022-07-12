@@ -11,6 +11,11 @@ namespace BugTracker.Repository
         {
             _db = db;
         }
+        public List<NotificationApplicationUser> GetAllUserNotifications(string userId)
+        {
+            return _db.UserNotifications.Include( n => n.Notification ).Where( n => n.UserId == userId ).ToList();
+            
+        }
 
         public void Create(Notification notification, int projectId)
         {

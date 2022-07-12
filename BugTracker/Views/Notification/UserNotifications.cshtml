@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = "Tickets";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow-lg border-primary mb-3 mt-3">
+    <div class="card-header bg-primary text-white mb-3">
+        <div class="row pt-3">
+            <div class="col-6">
+                <h2>Your Notifications</h2>
+            </div>
+            <div class="col-6 text-end">
+                <a asp-controller="Notification" asp-action="ReadAll" class="btn btn-info disabled">
+                    <i class="bi bi-check-all"></i> &nbsp; Read All
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="w-100 display table table-hover" >
+            <thead>
+                <tr class="table-primary">
+                    <th data-priority="1" scope="col">Text</th>
+                    <th scope="col">Read</th>
+                    <th scope="col">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var userNotification in Model)
+                {
+                    <tr>
+                        <td>@userNotification.Notification.Text</td>
+                        <td>@userNotification.Read</td>
+                        <td>@userNotification.Notification.Date</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+

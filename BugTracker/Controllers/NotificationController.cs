@@ -1,4 +1,5 @@
 ﻿using BugTracker.Areas.Identity.Data;
+using BugTracker.Models;
 using BugTracker.Repository;
 using BugTracker.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +17,13 @@ namespace BugTracker.Controllers
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+        }
+
+        public async Task<IActionResult> GetAllUserNotifications()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            List<NotificationApplicationUser> notifications = _unitOfWork.Notifications.GetAllUserNotifications(user.Id);
+            return View("UserNotifications",notifications);
         }
 
         public IActionResult GetNotifications()
