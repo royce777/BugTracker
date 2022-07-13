@@ -1,5 +1,7 @@
 ﻿using BugTracker.Data;
+using BugTracker.Hubs;
 using BugTracker.Models;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.Repository
@@ -7,9 +9,11 @@ namespace BugTracker.Repository
     public class NotificationRepository : INotificationRepository
     {
         private readonly ApplicationDbContext _db;
-        public NotificationRepository(ApplicationDbContext db)
+        private readonly IHubContext<NotificationHub> _hub;
+        public NotificationRepository(ApplicationDbContext db, IHubContext<NotificationHub> hub)
         {
             _db = db;
+            _hub = hub;
         }
         public List<NotificationApplicationUser> GetAllUserNotifications(string userId)
         {
@@ -34,6 +38,7 @@ namespace BugTracker.Repository
                 _db.UserNotifications.Add(userNotification);
                 _db.SaveChanges();
             }
+            _hub.Clients.All.SendAsync("getNotifications", "");
             
         }
         public List<NotificationApplicationUser> GetUserNotifications(string userId)

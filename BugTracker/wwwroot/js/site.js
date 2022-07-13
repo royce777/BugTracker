@@ -32,13 +32,20 @@ $(function () {
                     </div>`);
 
     function getNotifications() {
-        $('#notification-content').append('<ul class="list-group"></ul>');
+        if ($('.notification-list').length === 0) {
+            $('#notification-content').append('<ul class="list-group notification-list"></ul>');
+        }
         $.ajax({
             url: "/Notification/GetNotifications",
             method: "GET",
             success: function (result) {
                 if (result.count != 0) {
-                    $('#notificationButton').append('<span class="icon-button__badge "></span>');
+                    if ($('.icon-button__badge').length === 0) {
+                        $('#notificationButton').append('<span class="icon-button__badge"></span>');
+                    }
+                    else {
+                        $(".icon-button__badge").show('slow');
+                    }
                     $(".icon-button__badge").html(result.count);
                 }
                 else {
@@ -47,8 +54,20 @@ $(function () {
                 }
                 var notifications = result.userNotifications;
                 notifications.forEach(element => {
-                    $("ul.list-group").append($('<li>').text(element.notification.text).addClass('list-group-item').addClass('notification-text'));
-                    $("li.notification-text").attr("id", element.notification.id.toString());
+                    var id = element.notification.id.toString();
+                    if ($('ul.list-group li').length > 0) {
+                        if ($('ul.list-group li:last-child').attr('id') < id) {
+                            $('<li>', {
+                                id: id
+                            }).text(element.notification.text).addClass('list-group-item').addClass('notification-text').appendTo('ul.list-group');
+                        }
+                    }
+                    else {
+                        $('<li>', {
+                            id: id
+                        }).text(element.notification.text).addClass('list-group-item').addClass('notification-text').appendTo('ul.list-group');
+
+                    }
                 });
             },
             error: function (error) {
@@ -72,6 +91,7 @@ $(function () {
             success: function (result) {
                 getNotifications();
                 $(target).fadeOut('slow');
+                $(target).remove();
             },
             error: function (error) {
                 console.log(error);
@@ -80,6 +100,13 @@ $(function () {
     }
 
     getNotifications();
+
+    var connection = new signalR.HubConnectionBuilder().withUrl("/notificationHub").build();
+
+    connection.on('getNotifications', () => {
+        getNotifications();
+    });
+    connection.start();
 
 });
 

@@ -1,19 +1,23 @@
 ﻿using BugTracker.Data;
+using BugTracker.Hubs;
 using BugTracker.Repository;
+using Microsoft.AspNetCore.SignalR;
 
 namespace BugTracker.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _db;
-        public UnitOfWork(ApplicationDbContext db)
+        private readonly IHubContext<NotificationHub> _hub;
+        public UnitOfWork(ApplicationDbContext db, IHubContext<NotificationHub> hub)
         {
             _db = db;
+            _hub = hub; 
             Projects = new ProjectRepository(_db);
             Tickets = new TicketRepository(_db);
             Comments = new CommentRepository(_db);
             Attachments = new AttachmentRepository(_db);
-            Notifications = new NotificationRepository(_db);
+            Notifications = new NotificationRepository(_db, _hub);
             Users = new UserRepository(_db);
         }
 
