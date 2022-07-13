@@ -377,7 +377,7 @@ namespace BugTracker.Controllers
                 Text = $"{project.Title} staff has changed !",
                 RefLink = $"/Project/Details/{project.Id}"
             };
-            _unitOfWork.Notifications.Create(notification, projectId);
+            _unitOfWork.Notifications.Create(notification, projectId, user);
             
             return RedirectToAction("ManageProjectUsers", new { id = project.Id });
 
@@ -423,6 +423,14 @@ namespace BugTracker.Controllers
             }
             _unitOfWork.Projects.Update(project);
             await _unitOfWork.Complete();
+            //create notification
+            var notification = new Notification
+            {
+                Text = $"{project.Title} staff has changed !",
+                RefLink = $"/Project/Details/{project.Id}"
+            };
+            _unitOfWork.Notifications.Create(notification, projectId, user);
+
             return RedirectToAction("ManageProjectUsers", new { id = project.Id });
 
         }

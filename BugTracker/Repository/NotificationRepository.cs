@@ -1,4 +1,5 @@
-﻿using BugTracker.Data;
+﻿using BugTracker.Areas.Identity.Data;
+using BugTracker.Data;
 using BugTracker.Hubs;
 using BugTracker.Models;
 using Microsoft.AspNetCore.SignalR;
@@ -21,22 +22,25 @@ namespace BugTracker.Repository
             
         }
 
-        public void Create(Notification notification, int projectId)
+        public void Create(Notification notification, int projectId, ApplicationUser user)
         {
             var project = _db.Projects.Include(p => p.AssignedUsers).FirstOrDefault(p => p.Id == projectId);
             var projectUsers = project.AssignedUsers;
             _db.Notifications.Add(notification);
             _db.SaveChanges();
 
-            foreach(var user in projectUsers)
+            foreach(var usr in projectUsers)
             {
-                var userNotification = new NotificationApplicationUser
+                if(usr.Id != user.Id)
                 {
-                    NotificationId = notification.Id,
-                    UserId = user.Id
-                };
-                _db.UserNotifications.Add(userNotification);
-                _db.SaveChanges();
+                    var userNotification = new NotificationApplicationUser
+                    {
+                        NotificationId = notification.Id,
+                        UserId = usr.Id
+                    };
+                    _db.UserNotifications.Add(userNotification);
+                    _db.SaveChanges();
+                }
             }
             _hub.Clients.All.SendAsync("getNotifications", "");
             

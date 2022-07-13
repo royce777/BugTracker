@@ -1,6 +1,8 @@
-﻿using BugTracker.Models;
+﻿using BugTracker.Areas.Identity.Data;
+using BugTracker.Models;
 using BugTracker.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BugTracker.Controllers
@@ -10,10 +12,12 @@ namespace BugTracker.Controllers
     {
         // TODO : security considerations 
         private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AttachmentController(IUnitOfWork unitOfWork)
+        public AttachmentController(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
+            _userManager = userManager;
         }
         public IActionResult Index(int ticketId)
         {
@@ -45,6 +49,15 @@ namespace BugTracker.Controllers
                     att.MimeType = attachmentData.FormFile.ContentType;
                     _unitOfWork.Attachments.Add(att);
                     await _unitOfWork.Complete();
+                    //create notification
+                    var user = await _userManager.GetUserAsync(User);
+                    var ticket = _unitOfWork.Tickets.GetById(att.TicketId);
+                    var notification = new Notification
+                    {
+                        Text = $"{user.FirstName} ({user.UserName}) attached a file in ticket: {ticket.Title} ",
+                        RefLink = $"/Ticket/Details/{att.TicketId}"
+                    };
+                    _unitOfWork.Notifications.Create(notification, ticket.ProjectId, user);
                 }
           
             }

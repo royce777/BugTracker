@@ -103,6 +103,16 @@ namespace BugTracker.Controllers
                 await _unitOfWork.Complete();
                 //return Redirect(Request.Headers["Referer"].ToString()); 
                 TempData["success"] = "Ticket successfully created ! ";
+                //create notification
+                var user = await _userManager.GetUserAsync(User);
+                var project = _unitOfWork.Projects.GetById(obj.ProjectId);
+                var notification = new Notification
+                {
+                    Text = $"{project.Title} has new ticket : {obj.Title}!",
+                    RefLink = $"/Project/Details/{project.Id}"
+                };
+                _unitOfWork.Notifications.Create(notification, obj.ProjectId, user);
+
                 if (Request.Headers["Referer"].ToString().Contains("CreateFromProject"))
                 {
                     return RedirectToAction("Details", "Project", new { id = obj.ProjectId });
@@ -195,6 +205,14 @@ namespace BugTracker.Controllers
             {
                 _unitOfWork.Tickets.Update(obj);
                 await _unitOfWork.Complete();
+                //create notification
+                var notification = new Notification
+                {
+                    Text = $"{user.FirstName} ({user.UserName}) has edited ticket : {obj.Title} ",
+                    RefLink = $"/Ticket/Details/{obj.Id}"
+                };
+                _unitOfWork.Notifications.Create(notification, obj.ProjectId, user);
+
                 TempData["success"] = "Ticket successfully updated !";
                 return RedirectToAction("Details", new {id = obj.Id});
             }
@@ -284,6 +302,14 @@ namespace BugTracker.Controllers
             }
             if (success)
             {
+                //create notification
+                var notification = new Notification
+                {
+                    Text = $@"Ticket : ""{ticket.Title}"" has new status : {newStatus}. By {user.FirstName} ({user.UserName}) ",
+                    RefLink = $"/Ticket/Details/{ticket.Id}"
+                };
+                _unitOfWork.Notifications.Create(notification, ticket.ProjectId, user);
+
                 var result = new
                 {
                     action = newAction,
