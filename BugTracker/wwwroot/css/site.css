@@ -58,3 +58,7 @@ body {
     width: 500px;
     cursor: pointer;
 }
+
+.navbar .dropdown-menu {
+    position: absolute;
+}
