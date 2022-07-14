@@ -4,14 +4,31 @@
 // Write your JavaScript code.
 
 $(function () {
+    var res; // li notification items stored here !
+    var notificationsLink = '<a href="/Notification/GetAllUserNotifications" id="allNotificationsLink" class="btn btn-link mt-0"> See All </a>';
+    var finalResult;
+
+    var setPopoverContent = () => {
+        finalResult = '';
+        finalResult += notificationsLink;
+        finalResult += '<ul class="list-group notification-list">';
+        finalResult += res;
+        finalResult += '</ul>';
+        return finalResult;
+    };
+
     $('[data-bs-toggle="popover"]').popover({
         placement: 'bottom',
         content: function () {
-            return $("#notification-content").html();
+            return setPopoverContent();
         },
         html: true
+    }).on('shown.bs.popover', function () {
+        var pop = $(this);
+        var contentEl = $(".popover-body");
+        contentEl.html(setPopoverContent());
     });
-    
+
     //dismiss popover on click outside of it !
     $('html').on('click', function (e) {
         var target;
@@ -27,14 +44,9 @@ $(function () {
         }
     });
 
-    $('body').append(`<div id="notification-content" class="d-none">
-                        <a href="/Notification/GetAllUserNotifications" id="allNotificationsLink" class="btn btn-link mt-0"> See All </a>
-                    </div>`);
 
     function getNotifications() {
-        if ($('.notification-list').length === 0) {
-            $('#notification-content').append('<ul class="list-group notification-list"></ul>');
-        }
+
         $.ajax({
             url: "/Notification/GetNotifications",
             method: "GET",
@@ -53,22 +65,15 @@ $(function () {
                     $(".icon-button__badge").hide('slow');
                 }
                 var notifications = result.userNotifications;
+                res = '';
                 notifications.forEach(element => {
-                    var id = element.notification.id.toString();
-                    if ($('ul.list-group li').length > 0) {
-                        if ($('ul.list-group li:last-child').attr('id') < id) {
-                            $('<li>', {
-                                id: id
-                            }).text(element.notification.text).addClass('list-group-item').addClass('notification-text').appendTo('ul.list-group');
-                        }
-                    }
-                    else {
-                        $('<li>', {
-                            id: id
-                        }).text(element.notification.text).addClass('list-group-item').addClass('notification-text').appendTo('ul.list-group');
-
-                    }
-                });
+                    var id = element.notification.id;
+                    var temp = $('<div>', { id: 'tempLi' });
+                    $('<li>', {
+                        id: id
+                    }).text(element.notification.text).addClass('list-group-item').addClass('notification-text').appendTo(temp);
+                    res = res + temp.html();
+                })
             },
             error: function (error) {
                 alert(error);
