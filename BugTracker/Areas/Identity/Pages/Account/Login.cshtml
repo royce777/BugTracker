@@ -47,6 +47,28 @@
                     </p>
                 </div>
             </form>
+            <hr />
+            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+            {
+                <div>
+                    <h5>
+                        Login using external providers : 
+                    </h5>
+                </div>
+                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                    <div>
+                        <p>
+                            @foreach (var provider in Model.ExternalLogins)
+                            {
+                                <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                            }
+                        </p>
+                    </div>
+                </form>
+                <hr/>
+                
+            }
+
             <form id="demo" method="post">
                 <input type="hidden" asp-for="Input.UserName" id="demo_UserName" class="form-control" value="demouser"/>
                 <input type="hidden" asp-for="Input.Password" id="demo_Password" class="form-control" autocomplete="current-password" aria-required="true" value="Demo10-"/>

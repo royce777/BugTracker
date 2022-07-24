@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using BugTracker.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using BugTracker.Repository;
 using BugTracker.UnitOfWork;
 using BugTracker.Hubs;
 using BugTracker.Services;
@@ -23,6 +22,11 @@ builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
+builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+{
+    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+});
 
 
 var app = builder.Build();

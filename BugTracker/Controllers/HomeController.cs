@@ -35,6 +35,14 @@ namespace BugTracker.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        [AllowAnonymous]
+        public IActionResult ShowError(string ErrorTitle, string ErrorMessage)
+        {
+            ViewBag.ErrorTitle = ErrorTitle;
+            ViewBag.ErrorMessage = ErrorMessage;
+            return View("Error");
+
+        }
         
     }
 }
