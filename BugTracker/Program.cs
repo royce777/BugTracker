@@ -10,7 +10,17 @@ using Azure.Identity;
 var builder = WebApplication.CreateBuilder(args);
 
 var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
-builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
+builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential(new DefaultAzureCredentialOptions
+{
+    ExcludeEnvironmentCredential = true,
+    ExcludeInteractiveBrowserCredential = true,
+    ExcludeAzurePowerShellCredential = true,
+    ExcludeSharedTokenCacheCredential = true,
+    ExcludeVisualStudioCodeCredential = true,
+    ExcludeAzureCliCredential = true,
+    ExcludeManagedIdentityCredential = builder.Environment.IsDevelopment(),
+    ExcludeVisualStudioCredential = !builder.Environment.IsDevelopment()
+}));
 var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection") ?? throw new InvalidOperationException("Connection string 'ApplicationDbContextConnection' not found.");
 
 builder.Services.AddDbContext<BugTracker.Data.ApplicationDbContext>(options =>
