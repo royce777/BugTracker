@@ -11,7 +11,9 @@
     "BugTracker": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "VaultUri": "https://bugtrackerkeys.vault.azure.net/",
+        "AZURE_USERNAME": "r.stasula@studenti.unipi.it"
       },
       "applicationUrl": "https://localhost:7173;http://localhost:5173",
       "dotnetRunMessages": true
@@ -19,7 +21,9 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "VaultUri": "https://bugtrackerkeys.vault.azure.net/",
+        "AZURE_USERNAME": "r.stasula@studenti.unipi.it"
       }
     }
   }

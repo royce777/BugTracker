@@ -5,8 +5,12 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using BugTracker.UnitOfWork;
 using BugTracker.Hubs;
 using BugTracker.Services;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
+builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
 var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection") ?? throw new InvalidOperationException("Connection string 'ApplicationDbContextConnection' not found.");
 
 builder.Services.AddDbContext<BugTracker.Data.ApplicationDbContext>(options =>
@@ -24,8 +28,8 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 builder.Services.AddAuthentication().AddGoogle(googleOptions =>
 {
-    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    googleOptions.ClientId = builder.Configuration["Authentication-Google-ClientId"];
+    googleOptions.ClientSecret = builder.Configuration["Authentication-Google-ClientSecret"];
 });
 
 

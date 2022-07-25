@@ -1,14 +1,11 @@
 {
   "dependencies": {
-    "mssql1": {
-      "type": "mssql.local",
-      "connectionId": "ConnectionStrings:ApplicationDbContextConnection"
-    },
-    "secrets1": {
-      "secretStore": null,
+    "secrets2": {
+      "secretStore": "AzureAppSettings",
       "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.KeyVault/vaults/BugTrackerKeys",
       "type": "secrets.keyVault",
-      "connectionId": "VaultUri"
+      "connectionId": "VaultUri",
+      "dynamicId": null
     }
   }
 }
