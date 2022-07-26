@@ -1,5 +1,6 @@
 ﻿using BugTracker.Areas.Identity.Data;
 using BugTracker.Models;
+using BugTracker.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,15 +13,20 @@ namespace BugTracker.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public HomeController(ILogger<HomeController> logger, UserManager<ApplicationUser> userManager)
+        public HomeController(ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _userManager = userManager;
+            _unitOfWork = unitOfWork;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var user = await _userManager.GetUserAsync(User);
+            var projects = _unitOfWork.Projects.Find(p => p.AssignedUsers.Contains(user)).ToList();
+            ViewData["ProjectCounter"] = projects.Count;
             return View();
         }
 

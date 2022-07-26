@@ -1,13 +1,29 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    int projectCounter = (int)ViewData["ProjectCounter"];
 }
 
 <div class="text-center">
     <h1 class="display-4">Welcome to BugTracker</h1>
 </div>
-
-@await Component.InvokeAsync("HomeCardSlider", new { type = "ticket"})
-@await Component.InvokeAsync("HomeCardSlider", new { type = "project" })
+@if(projectCounter > 0)
+{
+    @await Component.InvokeAsync("HomeCardSlider", new { type = "ticket"})
+    @await Component.InvokeAsync("HomeCardSlider", new { type = "project" })
+}
+else
+{
+    <div class="d-flex flex-column justify-content-center align-items-center">
+        <div class="text-center">
+            <h3 class="m-5">Ops....</h3> 
+        </div>
+        <div style="max-width: 500px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/1548/1548682.png" class="img-fluid" alt="Responsive image">
+        </div>
+        <h5 class="text-center mt-5">It looks like you don't participate in any project yet !</h5>
+        <h5 class="text-center">Please wait to be added to a project...</h5>
+    </div>
+}
 
 
 @section Scripts {
