@@ -153,6 +153,7 @@
                     btn.html(result.action);
                 }
                 $('#status').html(result.status);
+                $('#partialChanges').load('@Url.Action("Index", "TicketChange")', {ticketId : @Model.Id});
             }
         });
     });
