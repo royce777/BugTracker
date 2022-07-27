@@ -20,6 +20,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ApplicationUser> Users { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<NotificationApplicationUser> UserNotifications { get; set; }
+    public DbSet<TicketChange> TicketChanges { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

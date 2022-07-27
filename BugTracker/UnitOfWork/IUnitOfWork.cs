@@ -10,6 +10,7 @@ namespace BugTracker.UnitOfWork
         IAttachmentRepository Attachments { get; }
         INotificationRepository Notifications { get; }
         IUserRepository Users { get; }
+        ITicketChangeRepository TicketChanges { get; }
         Task<int> Complete();
     }
 }

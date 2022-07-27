@@ -47,8 +47,7 @@ public class Ticket
     public TicketStatus Status { get; set; }
     [Required]
     public TicketType Type { get; set; }
-    public DateTime Created { get; set; } = DateTime.Now;
-    public DateTime? LastUpdate { get; set; }
+    public DateTime? Created { get; set; }
 
     // link to a project
     [Required]

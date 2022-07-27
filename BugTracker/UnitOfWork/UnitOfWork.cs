@@ -19,6 +19,7 @@ namespace BugTracker.UnitOfWork
             Attachments = new AttachmentRepository(_db);
             Notifications = new NotificationRepository(_db, _hub);
             Users = new UserRepository(_db);
+            TicketChanges = new TicketChangeRepository(_db);
         }
 
         public IProjectRepository Projects { get; private set; }
@@ -32,6 +33,7 @@ namespace BugTracker.UnitOfWork
         public INotificationRepository Notifications { get; private set; }
 
         public IUserRepository Users { get; private set; }
+        public ITicketChangeRepository TicketChanges { get; private set; }
 
         public Task<int> Complete()
         {

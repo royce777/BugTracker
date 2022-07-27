@@ -5,8 +5,6 @@ using BugTracker.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace BugTracker.Controllers
 {
@@ -99,6 +97,7 @@ namespace BugTracker.Controllers
 
             if (ModelState.IsValid)
             {
+                obj.Created = DateTime.Now;
                 _unitOfWork.Tickets.Add(obj);
                 await _unitOfWork.Complete();
                 //return Redirect(Request.Headers["Referer"].ToString()); 
@@ -204,6 +203,8 @@ namespace BugTracker.Controllers
             if (ModelState.IsValid)
             {
                 _unitOfWork.Tickets.Update(obj);
+                // Track properties for changement history
+                _unitOfWork.TicketChanges.CreateTicketChange(obj, user.Id);
                 await _unitOfWork.Complete();
                 //create notification
                 var notification = new Notification
@@ -265,6 +266,7 @@ namespace BugTracker.Controllers
                     {
                         ticket.Status = TicketStatus.In_Progress;
                         _unitOfWork.Tickets.Update(ticket);
+                        _unitOfWork.TicketChanges.CreateTicketChange(ticket, user.Id);
                         await _unitOfWork.Complete();
                         newStatus = "In Progress";
                         newAction = "Finish";
@@ -276,6 +278,7 @@ namespace BugTracker.Controllers
                     {
                         ticket.Status = TicketStatus.Finished;
                         _unitOfWork.Tickets.Update(ticket);
+                        _unitOfWork.TicketChanges.CreateTicketChange(ticket, user.Id);
                         await _unitOfWork.Complete();
                         newStatus = "Finished";
                         if(User.IsInRole("Project Manager") || User.IsInRole("Architect")|| User.IsInRole("Demo"))
@@ -294,6 +297,7 @@ namespace BugTracker.Controllers
                     {
                         ticket.Status = TicketStatus.Closed;
                         _unitOfWork.Tickets.Update(ticket);
+                        _unitOfWork.TicketChanges.CreateTicketChange(ticket, user.Id);
                         await _unitOfWork.Complete();
                         newStatus = "Closed";
                         success = true;
