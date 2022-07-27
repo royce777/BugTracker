@@ -24,7 +24,6 @@ $(function () {
         },
         html: true
     }).on('shown.bs.popover', function () {
-        var pop = $(this);
         var contentEl = $(".popover-body");
         contentEl.html(setPopoverContent());
     });
@@ -74,6 +73,8 @@ $(function () {
                     }).text(element.notification.text).addClass('list-group-item').addClass('notification-text').appendTo(temp);
                     res = res + temp.html();
                 })
+                var contentEl = $(".popover-body");
+                contentEl.html(setPopoverContent());
             },
             error: function (error) {
                 alert(error);
