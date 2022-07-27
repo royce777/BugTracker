@@ -98,8 +98,17 @@
     <div class="col-xl-6">
         @*@Html.Partial("_CommentPartialView", new CommentDTO {Comment = new Comment{ TicketId = Model.Id }})
         *@
-        <div id="partialComments">
+        <div class="row">
+            <div class="col-12">
+                <div id="partialComments">
 
+                </div>
+            </div>
+            <div class="col-12">
+                <div id="partialChanges">
+
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -109,6 +118,7 @@
     <script>
     $('#partialComments').load('@Url.Action("Index", "Comment")', {ticketId : @Model.Id});
     $('#partialAttachments').load('@Url.Action("Index", "Attachment")', {ticketId : @Model.Id});
+    $('#partialChanges').load('@Url.Action("Index", "TicketChange")', {ticketId : @Model.Id});
 
     $('.actionButton').on('click', function(event) {
         var action = $('.actionButton').text();

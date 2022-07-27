@@ -1,0 +1,53 @@
+﻿@model IEnumerable<TicketChange> 
+@using Microsoft.AspNetCore.Identity
+@using BugTracker.Areas.Identity.Data
+
+@inject UserManager<ApplicationUser> userManager
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+        <div class="card shadow border-primary mb-3 mt-3" >
+            <div class="card-header"><h5>Changes history</h5></div>
+            <div class="card-body">
+
+            
+            <table class="w-100 partialChanges table table-hover" >
+                <thead>
+                    <tr class="table-primary">
+                        <th data-priority="1" scope="col">Property</th>
+                        <th data-priority="2" scope="col">Old</th>
+                        <th data-priority="3" scope="col">New</th>
+                        <th scope="col">Author</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    @foreach(var change in Model)
+                    {
+                        <tr>
+                            <td>@change.Property</td>
+                            <td>@change.OldValue</td>
+                            <td>@change.NewValue</td>
+                            <td>@change.Author</td>
+                        </tr>
+                    } 
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var table = $('table.partialChanges').DataTable({
+            responsive: true
+        });
+    });
+</script>
+
