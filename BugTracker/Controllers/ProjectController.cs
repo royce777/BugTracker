@@ -1,11 +1,8 @@
 ﻿using BugTracker.Areas.Identity.Data;
-using BugTracker.Data;
-using BugTracker.Repository;
 using BugTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using BugTracker.UnitOfWork;
 
@@ -251,9 +248,25 @@ namespace BugTracker.Controllers
                 data.datasets = new List<Chart.Data.Datasets>();
                 data.datasets.Add(datasets);
                 Chart chart = new Chart();
-                chart.type = "pie";
+                chart.type = "doughnut";
                 chart.responsive = true;
                 chart.data = data;
+                Chart.Options options = new()
+                {
+                    plugins = new Chart.Options.Plugins()
+                    {
+                        title = new Chart.Options.Plugins.Title()
+                        {
+                            display = true,
+                            text = "Tickets priority"
+                        },
+                        legend = new Chart.Options.Plugins.Legend()
+                        {
+                            display = false
+                        }
+                    }
+                };
+                chart.options = options;
                 ViewBag.priorityData = JsonConvert.SerializeObject(chart);
 
                 //CHART JS status
@@ -262,7 +275,8 @@ namespace BugTracker.Controllers
                 // keep same colors
                 datasets.data = dataArr;
                 data.labels = labels;
-                datasets.label = "Ticket Status";
+                datasets.label = "Ticket status";
+                chart.options.plugins.title.text = "Tickets status";
                 ViewBag.statusData = JsonConvert.SerializeObject(chart);
 
                 //CHART JS type
@@ -272,6 +286,7 @@ namespace BugTracker.Controllers
                 datasets.data = dataArr;
                 data.labels = labels;
                 datasets.label = "Ticket Type";
+                chart.options.plugins.title.text = "Tickets type";
                 ViewBag.typeData = JsonConvert.SerializeObject(chart);
                 ViewBag.showChart = "Yes";
             }
