@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
-using SendGrid;
-using SendGrid.Helpers.Mail;
+using System.Net;
+using System.Net.Mail;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace BugTracker.Services;
 
@@ -20,31 +22,53 @@ public class EmailSender : IEmailSender
 
     public async Task SendEmailAsync(string toEmail, string subject, string message)
     {
-        if (string.IsNullOrEmpty(Options.SendGridKey))
+        if (string.IsNullOrEmpty(Options.SmtpUsername) || string.IsNullOrEmpty(Options.SmtpPassword))
         {
-            throw new Exception("Null SendGridKey");
+            throw new Exception("SMTP credentials not configured");
         }
-        await Execute(Options.SendGridKey, subject, message, toEmail);
+        await Execute(subject, message, toEmail);
     }
 
-    public async Task Execute(string apiKey, string subject, string message, string toEmail)
+    public async Task Execute(string subject, string message, string toEmail)
     {
-        var client = new SendGridClient(apiKey);
-        var msg = new SendGridMessage()
+        try
         {
-            From = new EmailAddress("roycebugtracker@proton.me", "Password Recovery"),
-            Subject = subject,
-            PlainTextContent = message,
-            HtmlContent = message
-        };
-        msg.AddTo(new EmailAddress(toEmail));
+            using var client = new SmtpClient(Options.SmtpHost, Options.SmtpPort);
+            
+            // Configure secure connection
+            client.EnableSsl = Options.EnableSsl;
+            client.UseDefaultCredentials = false;
+            client.Credentials = new NetworkCredential(Options.SmtpUsername, Options.SmtpPassword);
+            
+            // Force TLS 1.2+
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
+            
+            // Validate SSL certificate
+            ServicePointManager.ServerCertificateValidationCallback = ValidateServerCertificate;
+            
+            // Set timeout
+            client.Timeout = 30000; // 30 seconds
 
-        // Disable click tracking.
-        // See https://sendgrid.com/docs/User_Guide/Settings/tracking.html
-        msg.SetClickTracking(false, false);
-        var response = await client.SendEmailAsync(msg);
-        _logger.LogInformation(response.IsSuccessStatusCode
-                               ? $"Email to {toEmail} queued successfully!"
-                               : $"Failure Email to {toEmail}");
+            using var mailMessage = new MailMessage();
+            mailMessage.From = new MailAddress(Options.FromEmail, Options.FromName);
+            mailMessage.To.Add(toEmail);
+            mailMessage.Subject = subject;
+            mailMessage.Body = message;
+            mailMessage.IsBodyHtml = false; // Plain text only
+
+            await client.SendMailAsync(mailMessage);
+            _logger.LogInformation($"Email to {toEmail} sent successfully via SMTP");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Failed to send email to {toEmail}: {ex.Message}");
+            throw;
+        }
+    }
+
+    private static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+    {
+        // Accept only valid certificates from trusted CAs
+        return sslPolicyErrors == SslPolicyErrors.None;
     }
 }
