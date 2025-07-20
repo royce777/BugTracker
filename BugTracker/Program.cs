@@ -9,18 +9,23 @@ using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
-builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential(new DefaultAzureCredentialOptions
+// Only use Azure Key Vault if VaultUri is provided (for production)
+var vaultUri = Environment.GetEnvironmentVariable("VaultUri");
+if (!string.IsNullOrEmpty(vaultUri))
 {
-    ExcludeEnvironmentCredential = true,
-    ExcludeInteractiveBrowserCredential = true,
-    ExcludeAzurePowerShellCredential = true,
-    ExcludeSharedTokenCacheCredential = true,
-    ExcludeVisualStudioCodeCredential = true,
-    ExcludeAzureCliCredential = true,
-    ExcludeManagedIdentityCredential = builder.Environment.IsDevelopment(),
-    ExcludeVisualStudioCredential = !builder.Environment.IsDevelopment()
-}));
+    var keyVaultEndpoint = new Uri(vaultUri);
+    builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential(new DefaultAzureCredentialOptions
+    {
+        ExcludeEnvironmentCredential = true,
+        ExcludeInteractiveBrowserCredential = true,
+        ExcludeAzurePowerShellCredential = true,
+        ExcludeSharedTokenCacheCredential = true,
+        ExcludeVisualStudioCodeCredential = true,
+        ExcludeAzureCliCredential = true,
+        ExcludeManagedIdentityCredential = builder.Environment.IsDevelopment(),
+        ExcludeVisualStudioCredential = !builder.Environment.IsDevelopment()
+    }));
+}
 var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection") ?? throw new InvalidOperationException("Connection string 'ApplicationDbContextConnection' not found.");
 
 builder.Services.AddDbContext<BugTracker.Data.ApplicationDbContext>(options =>
@@ -36,11 +41,12 @@ builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
-builder.Services.AddAuthentication().AddGoogle(googleOptions =>
-{
-    googleOptions.ClientId = builder.Configuration["Authentication-Google-ClientId"];
-    googleOptions.ClientSecret = builder.Configuration["Authentication-Google-ClientSecret"];
-});
+// Google OAuth disabled for local development
+// builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+// {
+//     googleOptions.ClientId = builder.Configuration["Authentication-Google-ClientId"];
+//     googleOptions.ClientSecret = builder.Configuration["Authentication-Google-ClientSecret"];
+// });
 
 
 var app = builder.Build();
