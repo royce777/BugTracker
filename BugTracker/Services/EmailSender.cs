@@ -54,7 +54,7 @@ public class EmailSender : IEmailSender
             mailMessage.To.Add(toEmail);
             mailMessage.Subject = subject;
             mailMessage.Body = message;
-            mailMessage.IsBodyHtml = false; // Plain text only
+            mailMessage.IsBodyHtml = true;
 
             await client.SendMailAsync(mailMessage);
             _logger.LogInformation($"Email to {toEmail} sent successfully via SMTP");
